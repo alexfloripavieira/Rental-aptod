@@ -46,4 +46,8 @@ class Aptos(models.Model):
 
 class Foto(models.Model):
     apto = models.ForeignKey(Aptos, related_name="fotos", on_delete=models.CASCADE)
+    description = models.CharField(max_length=10, blank=True, null=True)
     photos = models.ImageField(upload_to="aptos/aptos_photos", blank=True, null=True)
+
+    def __str__(self):
+        return self.apto.unit_number
