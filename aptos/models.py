@@ -10,6 +10,9 @@ class Builders(models.Model):
     state = models.CharField(max_length=100)
     zip_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100)
+    video = models.FileField(
+        upload_to="builders/builders_videos", blank=True, null=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -51,3 +54,16 @@ class Foto(models.Model):
 
     def __str__(self):
         return self.apto.unit_number
+
+
+class BuilderFoto(models.Model):
+    builder = models.ForeignKey(
+        Builders, related_name="builder_fotos", on_delete=models.CASCADE
+    )
+    description = models.CharField(max_length=10, blank=True, null=True)
+    photos = models.ImageField(
+        upload_to="builders/builders_photos", blank=True, null=True
+    )
+
+    def __str__(self):
+        return self.builder.name

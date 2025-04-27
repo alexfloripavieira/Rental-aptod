@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Aptos, Builders, Foto
+from .models import Aptos, BuilderFoto, Builders, Foto
+
+
+class BuilderFotoInline(admin.TabularInline):
+    model = BuilderFoto
+    extra = 10
+    max_num = 10
+    min_num = 0
 
 
 class BuildersAdmin(admin.ModelAdmin):
@@ -15,6 +22,7 @@ class BuildersAdmin(admin.ModelAdmin):
         "country",
     )
     search_fields = ("name",)
+    inlines = [BuilderFotoInline]
 
 
 class FotoInline(admin.TabularInline):
@@ -22,7 +30,6 @@ class FotoInline(admin.TabularInline):
     extra = 10
     max_num = 10
     min_num = 0
-
 
 class AptosAdmin(admin.ModelAdmin):
     list_display = (
