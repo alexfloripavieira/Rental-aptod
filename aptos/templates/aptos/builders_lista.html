@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lista de Empreendimentos</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'aptos/css/styles.css' %}">
+  </head>
+  <body>
+    <h1>Empreendimentos</h1>
+
+    <div class="builders-container">
+      {% for builder in builders %}
+        <div class="builder-card">
+          <h2>{{ builder.name }}</h2>
+          <p>
+            <strong>Endereço:</strong> {{ builder.street }}, {{ builder.neighborhood }}, {{ builder.city }} - {{ builder.state }}, {{ builder.country }} - CEP: {{ builder.zip_code }}
+          </p>
+
+          <div class="builder-info">
+            <p>
+              <strong>Vídeo:</strong>
+            </p>
+            {% if builder.video %}
+              <video class="video-builder" controls>
+                <source src="{{ builder.video.url }}" type="video/mp4" />Seu navegador não suporta vídeo.
+              </video>
+            {% endif %}
+
+            <p>
+              <strong>Fotos:</strong>
+            </p>
+            {% if builder.builder_fotos.all %}
+              <div class="photos">
+                {% for foto in builder.builder_fotos.all %}
+                  {% if foto.photos %}
+                    <img src="{{ foto.photos.url }}" alt="{{ foto.description|default:'Foto' }}" class="thumbnail" />
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <p>Nenhum empreendimento encontrado.</p>
+      {% endfor %}
+    </div>
+  </body>
+</html>
