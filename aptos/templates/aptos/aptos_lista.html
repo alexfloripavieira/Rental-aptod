@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lista de Apartamentos</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'aptos/css/styles.css' %}">
+    <script src="{% static 'aptos/js/photo-modal.js' %}" defer></script>
+  </head>
+  <body>
+    <h1>Lista de Apartamentos</h1>
+
+    {% for apto in aptos %}
+      <div class="apto">
+        <h2>Apartamento {{ apto.unit_number }}</h2>
+        <p><strong>Descrição:</strong> {{ apto.description }}</p>
+        <p><strong>Preço de aluguel:</strong> R$ {{ apto.rental_price }}</p>
+        <p><strong>Andar:</strong> {{ apto.floor }}</p>
+        <p><strong>Construção:</strong> {{ apto.building_name.name }}</p>
+        <p>
+          <strong>Endereço:</strong>
+          {{ apto.building_name.street }}, {{ apto.building_name.neighborhood }},
+          {{ apto.building_name.city }} - {{ apto.building_name.state }},
+          {{ apto.building_name.country }}, CEP: {{ apto.building_name.zip_code }}
+        </p>
+        <p><strong>Quartos:</strong> {{ apto.number_of_bedrooms }} | <strong>Banheiros:</strong> {{ apto.number_of_bathrooms }}</p>
+        <p><strong>Tamanho:</strong> {{ apto.square_footage }} sqft</p>
+        <p><strong>Disponível:</strong> {{ apto.is_available|yesno:'Sim,Não' }}</p>
+        <p><strong>Mobilhado:</strong> {{ apto.is_furnished|yesno:'Sim,Não' }}</p>
+        <p><strong>Permite Pets:</strong> {{ apto.is_pets_allowed|yesno:'Sim,Não' }}</p>
+        <p><strong>Tem Lavanderia:</strong> {{ apto.has_laundry|yesno:'Sim,Não' }}</p>
+        <p><strong>Tem Vaga de Estacionamento:</strong> {{ apto.has_parking|yesno:'Sim,Não' }}</p>
+        <p><strong>Tem Internet:</strong> {{ apto.has_internet|yesno:'Sim,Não' }}</p>
+        <p><strong>Ar Condicionado:</strong> {{ apto.has_air_conditioning|yesno:'Sim,Não' }}</p>
+
+        {% if apto.fotos.all %}
+          <h3>Fotos:</h3>
+          <div class="photos">
+            {% for foto in apto.fotos.all %}
+              {% if foto.photos %}
+                <img src="{{ foto.photos.url }}" alt="{{ foto.description|default:'Foto' }}" class="thumbnail" />
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div id="photoModal" class="modal">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="modalImage" />
+            <div class="modal-navigation">
+              <button id="prevPhoto">&#10094;</button>
+              <button id="nextPhoto">&#10095;</button>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if apto.video %}
+          <h3>Vídeo:</h3>
+          <video class="video-apto" controls poster="{{ apto.video_thumbnail.url }}">
+            <source src="{{ apto.video.url }}" type="video/mp4" />
+            Seu navegador não suporta vídeos.
+          </video>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>Nenhum apartamento encontrado.</p>
+    {% endfor %}
+  </body>
+</html>
