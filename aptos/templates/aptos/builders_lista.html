@@ -4,45 +4,59 @@
     <meta charset="UTF-8" />
     <title>Lista de Empreendimentos</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'aptos/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'aptos/css/styles.css' %}" />
+    <script src="{% static 'aptos/js/photo-modal.js' %}" defer></script>
   </head>
   <body>
     <h1>Empreendimentos</h1>
 
     <div class="builders-container">
       {% for builder in builders %}
-        <div class="builder-card">
-          <h2>{{ builder.name }}</h2>
-          <p>
-            <strong>Endereço:</strong> {{ builder.street }}, {{ builder.neighborhood }}, {{ builder.city }} - {{ builder.state }}, {{ builder.country }} - CEP: {{ builder.zip_code }}
-          </p>
+      <div class="builder-card">
+        <h2>{{ builder.name }}</h2>
+        <h3>Endereço:</h3>
+        <p><strong>Logradouro: </strong> {{ builder.street }}</p>
+        <p><strong>Bairro: </strong> {{ builder.neighborhood }}</p>
+        <p><strong>Cidade: </strong> {{ builder.city }}</p>
+        <p><strong>Estado: </strong> {{ builder.state }}</p>
+        <p><strong>País: </strong> {{ builder.country }}</p>
+        <p><strong>CEP: </strong> {{ builder.zip_code }}</p>
+        <div class="builder-info">
+          {% if builder.video %}
+          <h3>Vídeo:</h3>
+          <video class="video-builder" controls>
+            <source src="{{ builder.video.url }}" type="video/mp4" />
+            Seu navegador não suporta vídeo.
+          </video>
+          {% endif %}
 
-          <div class="builder-info">
-            <p>
-              <strong>Vídeo:</strong>
-            </p>
-            {% if builder.video %}
-              <video class="video-builder" controls>
-                <source src="{{ builder.video.url }}" type="video/mp4" />Seu navegador não suporta vídeo.
-              </video>
-            {% endif %}
-
-            <p>
-              <strong>Fotos:</strong>
-            </p>
-            {% if builder.builder_fotos.all %}
-              <div class="photos">
-                {% for foto in builder.builder_fotos.all %}
-                  {% if foto.photos %}
-                    <img src="{{ foto.photos.url }}" alt="{{ foto.description|default:'Foto' }}" class="thumbnail" />
-                  {% endif %}
-                {% endfor %}
-              </div>
-            {% endif %}
+          {% if builder.builder_fotos.all %}
+          <h3>Fotos:</h3>
+          <div class="photos">
+            {% for foto in builder.builder_fotos.all %}
+              {% if foto.photos %}
+                <img
+                  src="{{ foto.photos.url }}"
+                  alt="{{ foto.description|default:'Foto' }}"
+                  class="thumbnail"
+                />
+              {% endif %}
+            {% endfor %}
           </div>
+
+          <div id="photoModal" class="modal">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="modalImage" />
+            <div class="modal-navigation">
+              <button id="prevPhoto">&#10094;</button>
+              <button id="nextPhoto">&#10095;</button>
+            </div>
+          </div>
+          {% endif %}
         </div>
+      </div>
       {% empty %}
-        <p>Nenhum empreendimento encontrado.</p>
+      <p>Nenhum empreendimento encontrado.</p>
       {% endfor %}
     </div>
   </body>
