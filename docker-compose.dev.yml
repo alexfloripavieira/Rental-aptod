@@ -1,0 +1,40 @@
+# Docker Compose para ambiente de desenvolvimento
+version: '3.8'
+
+services:
+  db:
+    environment:
+      POSTGRES_DB: aptos_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev123
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  backend:
+    build:
+      target: development
+    environment:
+      - DJANGO_DEBUG=True
+      - POSTGRES_DB=aptos_dev
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=dev123
+    volumes:
+      - ./:/app
+      - media_dev_volume:/app/media
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api/v1
+
+volumes:
+  postgres_dev_data:
+  media_dev_volume:

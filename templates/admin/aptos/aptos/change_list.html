@@ -1,0 +1,33 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block content_title %}
+    {{ block.super }}
+
+    {% if total_aptos %}
+    <div class="changelist-stats">
+        <div class="stat-item">
+            <div class="stat-label">{% trans "Total Apartamentos" %}</div>
+            <div class="stat-value">{{ total_aptos }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">{% trans "Disponíveis" %}</div>
+            <div class="stat-value" style="color: #28a745;">{{ available_aptos }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">{% trans "Ocupados" %}</div>
+            <div class="stat-value" style="color: #dc3545;">{{ occupied_aptos }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">{% trans "Taxa Ocupação" %}</div>
+            <div class="stat-value">
+                {% if total_aptos > 0 %}
+                    {% widthratio occupied_aptos total_aptos 100 %}%
+                {% else %}
+                    0%
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

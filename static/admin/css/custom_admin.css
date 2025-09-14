@@ -1,0 +1,193 @@
+/* Django Admin Custom Styles for Aptos Project */
+
+/* Statistics Box in Changelist */
+.changelist-stats {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.changelist-stats .stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.changelist-stats .stat-label {
+    font-size: 12px;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.changelist-stats .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Media Preview Improvements */
+.field-photo_preview img,
+.field-video_preview video {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.field-photo_preview img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Inline Forms Enhancement */
+.inline-group .tabular tr.has_original td {
+    background-color: #f8f9fa;
+}
+
+.inline-group .tabular tr:hover {
+    background-color: #e9ecef;
+}
+
+/* File Upload Fields */
+input[type="file"] {
+    padding: 8px;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    background: #fafafa;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+    border-color: #667eea;
+    background: #f0f0f0;
+}
+
+/* Responsive Tables */
+@media (max-width: 767px) {
+    .changelist-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .field-photo_preview img,
+    .field-video_preview video {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Action Buttons */
+.submit-row input[type="submit"],
+.submit-row button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.submit-row input[type="submit"]:hover,
+.submit-row button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Fieldset Collapsible Improvements */
+fieldset.collapse {
+    border-left: 4px solid #667eea;
+}
+
+fieldset.collapse h2 {
+    background: linear-gradient(90deg, #f8f9fa 0%, transparent 100%);
+}
+
+/* Search Bar Enhancement */
+#changelist-search input[type="text"] {
+    border: 2px solid #e1e4e8;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+#changelist-search input[type="text"]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* List Display Row Hover */
+#changelist table tbody tr:hover {
+    background-color: #f6f8fa;
+    transition: background-color 0.2s ease;
+}
+
+/* Badge Styles for Status */
+.field-is_available img[alt="True"] {
+    filter: hue-rotate(85deg) saturate(2);
+}
+
+.field-is_available img[alt="False"] {
+    filter: hue-rotate(-50deg) saturate(1.5);
+}
+
+/* Loading Animation for Media */
+img[loading="lazy"],
+video[preload="none"] {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Photo Count Badge */
+.field-photo_count,
+.field-apartment_count {
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* Improved Pagination */
+.paginator {
+    padding: 15px 0;
+    border-top: 2px solid #e1e4e8;
+    margin-top: 20px;
+}
+
+.paginator a {
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background: #f6f8fa;
+    color: #586069;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.paginator a:hover {
+    background: #667eea;
+    color: white;
+}
+
+.paginator .this-page {
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background: #667eea;
+    color: white;
+    font-weight: bold;
+}

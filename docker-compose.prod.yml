@@ -1,0 +1,41 @@
+# Docker Compose para ambiente de produção
+version: '3.8'
+
+services:
+  db:
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    # Sem ports expostos - apenas rede interna
+
+  backend:
+    build:
+      target: production
+    environment:
+      - DJANGO_DEBUG=False
+      - DJANGO_SETTINGS_MODULE=app.settings_postgresql
+    volumes:
+      - media_prod_volume:/app/media
+      - static_prod_volume:/app/static
+    # Sem ports expostos - via nginx
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      target: production
+
+  nginx:
+    volumes:
+      - media_prod_volume:/media:ro
+      - static_prod_volume:/static:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+
+volumes:
+  postgres_prod_data:
+  media_prod_volume:
+  static_prod_volume:

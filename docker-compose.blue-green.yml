@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  frontend-blue:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: aptos-frontend-blue
+    networks: [aptos-blue]
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000', r => process.exit(r.statusCode<400?0:1)).on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  backend-blue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: aptos-backend-blue
+    depends_on:
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=app.settings_docker
+    volumes:
+      - media_volume:/app/media
+    networks: [aptos-blue, aptos-db]
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check", "--deploy"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend-green:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: aptos-frontend-green
+    networks: [aptos-green]
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000', r => process.exit(r.statusCode<400?0:1)).on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  backend-green:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: aptos-backend-green
+    depends_on:
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=app.settings_docker
+    volumes:
+      - media_volume:/app/media
+    networks: [aptos-green, aptos-db]
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check", "--deploy"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  db:
+    image: postgres:15-alpine
+    container_name: aptos-db
+    environment:
+      POSTGRES_DB: aptos
+      POSTGRES_USER: aptos_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks: [aptos-db]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aptos_user -d aptos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  loadbalancer:
+    image: haproxy:2.6-alpine
+    container_name: aptos-lb
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8404:8404"
+    volumes:
+      - ./haproxy:/usr/local/etc/haproxy:ro
+    networks: [aptos-blue, aptos-green]
+    depends_on:
+      - backend-blue
+      - frontend-blue
+    command: haproxy -f /usr/local/etc/haproxy/haproxy.cfg
+
+volumes:
+  postgres_data:
+  media_volume:
+
+networks:
+  aptos-blue:
+    driver: bridge
+  aptos-green:
+    driver: bridge
+  aptos-db:
+    driver: bridge
+

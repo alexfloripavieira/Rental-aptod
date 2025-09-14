@@ -1,8 +1,49 @@
-.vscode
-.serena
-.dist
-.claude
-templates
-rules
+### OS/Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vs/
+.vscode/
+
+### Python/Django
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+db.sqlite3
+*.log
+.env
+.env.*
+venv/
+.venv/
+
+### Node/Vite/React
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+frontend/coverage/
+playwright-report/
+test-results/
+
+### Build/Artifacts
+.dist/
+staticfiles/
+media/
+backups/
+logs/
+
+### Docker
+*.pid
+
+### Project specific (internal tooling)
+.serena/
+.claude/
 .mcp.json
+haproxy/active_*
 CLAUDE.md
