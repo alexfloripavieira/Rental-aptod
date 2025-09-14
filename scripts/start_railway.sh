@@ -9,8 +9,8 @@ MEDIA_ROOT_PATH=${DJANGO_MEDIA_ROOT:-/app/media}
 mkdir -p "$MEDIA_ROOT_PATH/aptos/aptos_videos" \
          "$MEDIA_ROOT_PATH/aptos/aptos_photos" \
          "$MEDIA_ROOT_PATH/builders/builders_videos" \
-         "$MEDIA_ROOT_PATH/builders/builders_photos" \
-         /app/tmp/uploads || true
+         "$MEDIA_ROOT_PATH/builders/builders_photos" || true
+mkdir -p /app/tmp/uploads || true
 
 echo "[start] Ensuring superuser (if env provided)..."
 python - <<'PY'

@@ -18,7 +18,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
-from dbmedia import views as dbmedia_views
 from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
@@ -38,8 +37,5 @@ urlpatterns = [
     re_path(r"^(?!admin/|api/|static/|media/).*$", TemplateView.as_view(template_name="index.html"), name="frontend"),
 ] 
 
-# Media serving: database storage or filesystem
-if getattr(settings, 'DEFAULT_FILE_STORAGE', '') == 'dbmedia.storage.DatabaseMediaStorage':
-    urlpatterns += [path('media/<path:path>', dbmedia_views.serve, name='dbmedia_serve')]
-else:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Media serving (filesystem)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

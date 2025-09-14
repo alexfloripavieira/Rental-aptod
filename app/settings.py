@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'drf_spectacular',
-    'dbmedia',
     # Local apps
     'aptos'
 ]
@@ -159,11 +158,14 @@ STORAGES = {
     },
 }
 
-# Store uploaded media in PostgreSQL (no disk/volume required)
+# Default file storage: filesystem (works with Railway Volume mounted at /data)
 DEFAULT_FILE_STORAGE = os.getenv(
     'DJANGO_DEFAULT_FILE_STORAGE',
-    'dbmedia.storage.DatabaseMediaStorage'
+    'django.core.files.storage.FileSystemStorage'
 )
+
+# Ensure 'default' storage backend is declared for Django 5
+STORAGES.setdefault("default", {"BACKEND": DEFAULT_FILE_STORAGE})
 
 MEDIA_ROOT = os.getenv('DJANGO_MEDIA_ROOT', os.path.join(BASE_DIR, "media"))
 MEDIA_URL = "/media/"

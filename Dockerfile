@@ -84,9 +84,6 @@ RUN mkdir -p /app/media/aptos/aptos_videos \
 
 # (Removido) Coleta de estáticos no build para evitar duplicidade / permissões
 
-# Mudar para usuário não-root
-USER appuser
-
 # Expor porta
 EXPOSE 8000
 
