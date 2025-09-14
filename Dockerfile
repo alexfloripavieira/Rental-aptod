@@ -45,6 +45,8 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 # Stage de produção
 FROM node:20-alpine AS frontend-builder
+ARG RAILWAY_GIT_COMMIT_SHA
+LABEL org.opencontainers.image.revision=$RAILWAY_GIT_COMMIT_SHA
 WORKDIR /app/frontend
 # Instala dependências do frontend
 COPY frontend/package*.json ./
@@ -55,6 +57,8 @@ ENV VITE_BASE_PATH=/static/
 RUN npm run build
 
 FROM dependencies as production
+ARG RAILWAY_GIT_COMMIT_SHA
+LABEL org.opencontainers.image.revision=$RAILWAY_GIT_COMMIT_SHA
 
 # Instalar gunicorn para produção
 RUN pip install --no-cache-dir gunicorn
