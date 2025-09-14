@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { ApartmentCard } from '../apartments/ApartmentCard'
 import type { Apartment } from '../../types/api'
 import React from 'react'
@@ -38,15 +39,22 @@ const mockApartment: Apartment = {
 
 describe('ApartmentCard', () => {
   it('renders basic information', () => {
-    render(<ApartmentCard apartment={mockApartment} />)
+    render(
+      <MemoryRouter>
+        <ApartmentCard apartment={mockApartment} />
+      </MemoryRouter>
+    )
     expect(screen.getByText('Apartamento 101')).toBeInTheDocument()
     expect(screen.getByText(/Test Building/)).toBeInTheDocument()
   })
 
   it('opens photo modal', async () => {
-    render(<ApartmentCard apartment={mockApartment} />)
+    render(
+      <MemoryRouter>
+        <ApartmentCard apartment={mockApartment} />
+      </MemoryRouter>
+    )
     fireEvent.click(screen.getByText(/Ver Fotos/))
     await waitFor(() => expect(screen.getByTestId('photo-modal')).toBeInTheDocument())
   })
 })
-
