@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import type { Apartment, Builder, Photo } from "../../types/api";
 import { apiClient } from "../../services/api";
 import { LazyImage } from "../../components/common/LazyImage";
+import { VideoWithPoster } from "../../components/common/VideoWithPoster";
 import { PhotoGallery } from "../../components/common/PhotoGallery";
 import { ApartmentCard } from "../../components/apartments/ApartmentCard";
 
@@ -69,11 +70,12 @@ const BuilderDetailPage: React.FC = () => {
       <div className="card overflow-hidden">
         {builder.video ? (
           <div className="media-hero">
-            <video
+            <VideoWithPoster
               src={apiClient.getMediaUrl(builder.video)}
               className="w-full h-full object-cover"
               controls
               preload="metadata"
+              poster={coverPhoto}
             />
           </div>
         ) : coverPhoto ? (

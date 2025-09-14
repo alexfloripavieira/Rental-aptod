@@ -5,6 +5,7 @@ import { VideoPlayer } from '../common/VideoPlayer';
 import { LazyImage } from '../common/LazyImage';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../../services/api';
+import { VideoWithPoster } from '../common/VideoWithPoster';
 import type { Photo } from '../../types/api';
 
 interface ApartmentCardProps {
@@ -51,11 +52,12 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
         >
           <div className="relative m-4 mb-0 h-48 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
             {apartment.video ? (
-              <video
+              <VideoWithPoster
                 src={apiClient.getMediaUrl(apartment.video)}
                 className="w-full h-full object-cover"
                 controls
                 preload="metadata"
+                poster={coverUrl}
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
               />
             ) : coverUrl ? (

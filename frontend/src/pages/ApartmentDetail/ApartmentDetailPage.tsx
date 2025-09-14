@@ -4,6 +4,7 @@ import type { Apartment } from '../../types/api';
 import { apiClient } from '../../services/api';
 import { LazyImage } from '../../components/common/LazyImage';
 import { PhotoGallery } from '../../components/common/PhotoGallery';
+import { VideoWithPoster } from '../../components/common/VideoWithPoster';
 
 const ApartmentDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -75,11 +76,12 @@ const ApartmentDetailPage: React.FC = () => {
         {/* Hero (vídeo ou capa) */}
         {apartment.video ? (
           <div className="media-hero">
-            <video
+            <VideoWithPoster
               src={apiClient.getMediaUrl(apartment.video)}
               className="w-full h-full object-cover"
               controls
               preload="metadata"
+              poster={coverUrl}
               playsInline
             />
           </div>

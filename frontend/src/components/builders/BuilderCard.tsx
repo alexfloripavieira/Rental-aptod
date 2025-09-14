@@ -2,6 +2,7 @@ import React from 'react';
 import type { Builder } from '../../types/api';
 import { apiClient } from '../../services/api';
 import { LazyImage } from '../common/LazyImage';
+import { VideoWithPoster } from '../common/VideoWithPoster';
 
 interface BuilderCardProps {
   builder: Builder;
@@ -16,11 +17,12 @@ export const BuilderCard: React.FC<BuilderCardProps> = ({ builder }) => {
       {/* Media */}
       <div className="relative aspect-video bg-gray-100">
         {video ? (
-          <video
+          <VideoWithPoster
             src={apiClient.getMediaUrl(video)}
             className="w-full h-full object-cover"
             controls
             preload="metadata"
+            poster={cover ? apiClient.getMediaUrl(cover) : undefined}
           />
         ) : cover ? (
           <LazyImage
