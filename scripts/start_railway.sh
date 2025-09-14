@@ -4,6 +4,13 @@ set -euo pipefail
 echo "[start] Applying migrations..."
 python manage.py migrate --noinput
 
+echo "[start] Ensuring media and temp directories..."
+mkdir -p /app/media/aptos/aptos_videos \
+         /app/media/aptos/aptos_photos \
+         /app/media/builders/builders_videos \
+         /app/media/builders/builders_photos \
+         /app/tmp/uploads || true
+
 echo "[start] Ensuring superuser (if env provided)..."
 python - <<'PY'
 import os

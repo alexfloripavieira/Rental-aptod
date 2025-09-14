@@ -161,6 +161,12 @@ STORAGES = {
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
+# Upload limits and temp directory (tuneable via env)
+FILE_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv('DJANGO_FILE_UPLOAD_MAX_MEMORY_SIZE', 10 * 1024 * 1024))  # 10MB in-memory
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv('DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE', 50 * 1024 * 1024))  # 50MB request body
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_TEMP_DIR = os.getenv('DJANGO_FILE_UPLOAD_TEMP_DIR', os.path.join(BASE_DIR, 'tmp', 'uploads'))
+
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

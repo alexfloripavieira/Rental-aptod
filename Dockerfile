@@ -79,8 +79,8 @@ RUN mkdir -p /app/media/aptos/aptos_videos \
     /app/media/aptos/aptos_photos \
     /app/media/builders/builders_videos \
     /app/media/builders/builders_photos \
-    /app/static /app/staticfiles /app/logs && \
-    chown -R appuser:appgroup /app/media /app/static /app/staticfiles /app/logs
+    /app/static /app/staticfiles /app/logs /app/tmp/uploads && \
+    chown -R appuser:appgroup /app/media /app/static /app/staticfiles /app/logs /app/tmp
 
 # (Removido) Coleta de estáticos no build para evitar duplicidade / permissões
 
