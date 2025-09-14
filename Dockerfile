@@ -52,6 +52,9 @@ RUN pip install --no-cache-dir gunicorn
 # Copiar código fonte
 COPY --chown=appuser:appgroup . .
 
+# Garantir permissão de execução do script de start
+RUN chmod +x scripts/start_railway.sh || true
+
 # Criar diretórios necessários para media
 RUN mkdir -p /app/media/aptos/aptos_videos \
     /app/media/aptos/aptos_photos \
@@ -73,5 +76,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/admin/ || exit 1
 
-# Comando padrão para produção
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "app.wsgi:application"]
+# Comando padrão para produção (aplica migrações, collectstatic e inicia Gunicorn)
+CMD ["bash", "scripts/start_railway.sh"]
