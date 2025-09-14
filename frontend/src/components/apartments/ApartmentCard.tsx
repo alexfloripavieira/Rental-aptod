@@ -5,6 +5,7 @@ import { VideoPlayer } from '../common/VideoPlayer';
 import { LazyImage } from '../common/LazyImage';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../../services/api';
+import type { Photo } from '../../types/api';
 
 interface ApartmentCardProps {
   apartment: Apartment;
@@ -12,7 +13,8 @@ interface ApartmentCardProps {
 
 export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
   const [showGallery, setShowGallery] = useState(false);
-  const photos = Array.isArray(apartment.fotos) ? apartment.fotos : [];
+  const initialPhotos = Array.isArray(apartment.fotos) ? apartment.fotos : [];
+  const [galleryPhotos, setGalleryPhotos] = useState<Photo[]>(initialPhotos as Photo[]);
   const navigate = useNavigate();
 
   const formatPrice = (price: number) => {
@@ -22,8 +24,8 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
     }).format(price);
   };
 
-  const coverUrl = apartment.main_photo || (photos[0] && photos[0].photos ? apiClient.getMediaUrl(photos[0].photos) : undefined);
-  const photoCount = (apartment as any).photo_count !== undefined ? (apartment as any).photo_count as number : photos.length;
+  const coverUrl = apartment.main_photo || (galleryPhotos[0] && galleryPhotos[0].photos ? apiClient.getMediaUrl(galleryPhotos[0].photos) : undefined);
+  const photoCount = (apartment as any).photo_count !== undefined ? (apartment as any).photo_count as number : galleryPhotos.length;
   const statusClass = apartment.is_available
     ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
     : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
@@ -58,7 +60,17 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
               />
             ) : coverUrl ? (
               <div
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowGallery(true); }}
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (galleryPhotos.length === 0) {
+                    try {
+                      const full = await apiClient.getApartment(apartment.id);
+                      setGalleryPhotos(full.fotos || []);
+                    } catch {}
+                  }
+                  setShowGallery(true);
+                }}
                 className="cursor-pointer w-full h-full"
               >
                 <LazyImage
@@ -150,7 +162,17 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
             <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
               {photoCount > 0 && (
                 <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowGallery(true); }}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (galleryPhotos.length === 0) {
+                      try {
+                        const full = await apiClient.getApartment(apartment.id);
+                        setGalleryPhotos(full.fotos || []);
+                      } catch {}
+                    }
+                    setShowGallery(true);
+                  }}
                   className="btn-outline"
                   aria-describedby={'apartment-' + apartment.id}
                 >
@@ -170,9 +192,9 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
         </article>
       </div>
 
-      {showGallery && photos.length > 0 && (
+      {showGallery && galleryPhotos.length > 0 && (
         <PhotoGallery
-          photos={photos}
+          photos={galleryPhotos}
           title={'Apartamento ' + apartment.unit_number}
           onClose={() => setShowGallery(false)}
         />
