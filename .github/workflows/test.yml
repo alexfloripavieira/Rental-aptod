@@ -70,9 +70,6 @@ jobs:
           docker version
           docker compose version
           docker compose -f docker-compose.test.yml up -d --build
-      - name: Run backend migrations
-        run: |
-          docker compose -f docker-compose.test.yml exec -T backend python manage.py migrate --noinput
       - name: Wait for services to be healthy
         run: |
           set -e
