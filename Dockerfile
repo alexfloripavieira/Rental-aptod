@@ -50,7 +50,8 @@ LABEL org.opencontainers.image.revision=$RAILWAY_GIT_COMMIT_SHA
 WORKDIR /app/frontend
 # Instala dependências do frontend
 COPY frontend/package*.json ./
-RUN npm ci --no-audit --no-fund
+# Usar npm install para tolerar divergências do lockfile do repositório
+RUN npm install --no-audit --no-fund
 COPY frontend .
 # Garante base de assets para Django
 ENV VITE_BASE_PATH=/static/
