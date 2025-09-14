@@ -30,7 +30,18 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
 
   return (
     <>
-      <Link to={'/aptos/' + apartment.id} className="block focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-lg"> 
+      <div
+        role="link"
+        tabIndex={0}
+        onClick={() => navigate('/aptos/' + apartment.id)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            navigate('/aptos/' + apartment.id);
+          }
+        }}
+        className="block focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-lg"
+      > 
         <article
           className="card hover:shadow-lg transition-shadow duration-200"
           role="article"
@@ -157,7 +168,7 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
             </div>
           </div>
         </article>
-      </Link>
+      </div>
 
       {showGallery && photos.length > 0 && (
         <PhotoGallery

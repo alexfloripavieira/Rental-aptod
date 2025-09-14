@@ -54,7 +54,7 @@ describe('ApartmentCard', () => {
         <ApartmentCard apartment={mockApartment} />
       </MemoryRouter>
     )
-    fireEvent.click(screen.getByText(/Ver Fotos/))
+    fireEvent.click(screen.getByText(/Ver fotos/i))
     await waitFor(() => expect(screen.getByTestId('photo-modal')).toBeInTheDocument())
   })
 })
