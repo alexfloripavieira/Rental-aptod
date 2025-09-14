@@ -35,10 +35,13 @@ jobs:
       - name: Prepare temp upload directory
         run: |
           mkdir -p "$RUNNER_TEMP/uploads"
+          mkdir -p "$RUNNER_TEMP/media"
       - name: Run Django tests with coverage
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_aptos
           DATABASE_SSL_REQUIRE: "false"
+          DJANGO_DEFAULT_FILE_STORAGE: django.core.files.storage.FileSystemStorage
+          DJANGO_MEDIA_ROOT: ${{ runner.temp }}/media
           DJANGO_FILE_UPLOAD_TEMP_DIR: ${{ runner.temp }}/uploads
         run: |
           coverage run --source='aptos' manage.py test

@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'drf_spectacular',
-    'db_file_storage',
+    'dbmedia',
     # Local apps
     'aptos'
 ]
@@ -162,10 +162,8 @@ STORAGES = {
 # Store uploaded media in PostgreSQL (no disk/volume required)
 DEFAULT_FILE_STORAGE = os.getenv(
     'DJANGO_DEFAULT_FILE_STORAGE',
-    'db_file_storage.storage.DatabaseFileStorage'
+    'dbmedia.storage.DatabaseMediaStorage'
 )
-DB_FILE_STORAGE_IMAGE_MODEL = 'db_file_storage.Image'
-DB_FILE_STORAGE_FILE_MODEL = 'db_file_storage.File'
 
 MEDIA_ROOT = os.getenv('DJANGO_MEDIA_ROOT', os.path.join(BASE_DIR, "media"))
 MEDIA_URL = "/media/"
