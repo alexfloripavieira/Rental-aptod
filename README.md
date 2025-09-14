@@ -12,6 +12,8 @@ Aplicação de gerenciamento de apartamentos com frontend em React (Vite + Tailw
 - Plano de DR: `docs/DR_PLAN.md`
 - Índice de documentação: `docs/README.md`
 
+Veja também o changelog: `CHANGELOG.md`.
+
 ## Como rodar (rápido)
 - Dev (React + Django): `make up`
 - Produção local (Nginx): `make up-prod`
