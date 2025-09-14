@@ -44,6 +44,16 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 # Stage de produção
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app/frontend
+# Instala dependências do frontend
+COPY frontend/package*.json ./
+RUN npm ci --no-audit --no-fund
+COPY frontend .
+# Garante base de assets para Django
+ENV VITE_BASE_PATH=/static/
+RUN npm run build
+
 FROM dependencies as production
 
 # Instalar gunicorn para produção
@@ -54,6 +64,10 @@ COPY --chown=appuser:appgroup . .
 
 # Garantir permissão de execução do script de start
 RUN chmod +x scripts/start_railway.sh || true
+
+# Copiar build do frontend para o Django
+COPY --from=frontend-builder --chown=appuser:appgroup /app/frontend/dist/assets /app/static/assets
+COPY --from=frontend-builder --chown=appuser:appgroup /app/frontend/dist/index.html /app/app/templates/index.html
 
 # Criar diretórios necessários para media
 RUN mkdir -p /app/media/aptos/aptos_videos \

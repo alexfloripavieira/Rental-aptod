@@ -17,13 +17,12 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # URLs tradicionais (views HTML)
-    path("", include("aptos.urls")),
     # API REST endpoints
     path("api/v1/", include("aptos.api_urls")),
     # API Authentication (Django REST framework)
@@ -32,4 +31,8 @@ urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    # (Opcional) Rotas antigas de templates server-side ficaram sob /legacy/
+    # path("legacy/", include("aptos.urls")),
+    # Catch-all do SPA: envia tudo que não for API/Admin/Static/Media para index.html
+    re_path(r"^(?!admin/|api/|static/|media/).*$", TemplateView.as_view(template_name="index.html"), name="frontend"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
