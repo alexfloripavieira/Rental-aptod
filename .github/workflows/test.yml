@@ -80,6 +80,8 @@ jobs:
           curl -sf http://localhost:8001/api/v1/health/
       - name: Install Playwright Browsers
         uses: microsoft/playwright-github-action@v1
+      - name: Install Playwright package
+        run: npm install --no-save @playwright/test
       - name: Run Playwright tests
         env:
           BASE_URL: http://localhost:3001
