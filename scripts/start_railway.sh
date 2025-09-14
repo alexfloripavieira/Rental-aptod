@@ -7,9 +7,10 @@ python manage.py migrate --noinput
 echo "[start] Ensuring superuser (if env provided)..."
 python - <<'PY'
 import os
-from django.contrib.auth import get_user_model
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 import django
 django.setup()
+from django.contrib.auth import get_user_model
 
 username = os.getenv('DJANGO_SUPERUSER_USERNAME')
 password = os.getenv('DJANGO_SUPERUSER_PASSWORD')
