@@ -29,7 +29,7 @@ Este documento descreve as melhorias implementadas no Django Admin para otimizar
 - Dashboard com métricas em tempo real
 - Contadores de apartamentos disponíveis/ocupados
 - Taxa de ocupação calculada dinamicamente
-- Construtoras com/sem apartamentos
+- Empreendimentos com/sem apartamentos
 
 #### CSS Customizado
 - Gradients modernos nos botões e headers
@@ -106,7 +106,7 @@ templates/admin/aptos/
 ├── aptos/
 │   └── change_list.html     # Estatísticas apartamentos
 └── builders/
-    └── change_list.html     # Estatísticas construtoras
+    └── change_list.html     # Estatísticas Empreendimentos
 ```
 
 ## Performance Benchmarks

@@ -51,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     : 'text-gray-500 hover:text-gray-700 border-transparent hover:border-gray-300'
                 } px-1 py-4 border-b-2 text-sm font-medium transition-colors duration-200`}
               >
-                Construtoras
+                Empreendimentos
               </Link>
             </nav>
 
@@ -93,7 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
             >
-              Construtoras
+              Empreendimentos
             </Link>
           </div>
         </div>
@@ -135,7 +135,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </li>
                 <li>
                   <Link to="/builders" className="text-gray-600 hover:text-primary-600 transition-colors">
-                    Construtoras
+                    Empreendimentos
                   </Link>
                 </li>
               </ul>

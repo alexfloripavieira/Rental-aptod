@@ -68,7 +68,7 @@ const NotFoundPage: React.FC = () => {
               to="/builders"
               className="flex-1 btn-secondary"
             >
-              Ver construtoras
+              Ver Empreendimentos
             </Link>
           </div>
         </div>
@@ -91,7 +91,7 @@ const NotFoundPage: React.FC = () => {
               to="/builders"
               className="text-primary-600 hover:text-primary-700 transition-colors"
             >
-              Construtoras
+              Empreendimentos
             </Link>
           </div>
         </div>

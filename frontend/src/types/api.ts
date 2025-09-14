@@ -35,6 +35,8 @@ export interface Apartment {
   square_footage: number;
   video?: string;
   fotos: Photo[];
+  // Present in list endpoint for cover image
+  main_photo?: string;
   created_at: string;
   updated_at: string;
 }

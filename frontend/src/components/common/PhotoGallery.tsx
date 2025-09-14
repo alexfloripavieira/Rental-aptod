@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Photo } from '../../types/api';
 import { trapFocus } from '../../utils/accessibility';
+import { apiClient } from '../../services/api';
 
 interface PhotoGalleryProps {
   photos: Photo[];
@@ -55,6 +56,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : photos.length - 1));
   };
 
+  const currentUrl = apiClient.getMediaUrl(photos[currentIndex].photos);
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
@@ -90,8 +93,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({
         </div>
 
         <img
-          src={photos[currentIndex].photos}
-          alt={`${title} - Foto ${currentIndex + 1}`}
+          src={currentUrl}
+          alt={title + ' - Foto ' + (currentIndex + 1)}
           className="max-w-full max-h-screen object-contain"
         />
 
@@ -122,13 +125,11 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({
               <button
                 key={photo.id}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-12 h-12 rounded overflow-hidden border-2 ${
-                  index === currentIndex ? 'border-white' : 'border-transparent'
-                }`}
+                className={"w-12 h-12 rounded overflow-hidden border-2 " + (index === currentIndex ? 'border-white' : 'border-transparent')}
               >
                 <img
-                  src={photo.photos}
-                  alt={`Miniatura ${index + 1}`}
+                  src={apiClient.getMediaUrl(photo.photos)}
+                  alt={'Miniatura ' + (index + 1)}
                   className="w-full h-full object-cover"
                 />
               </button>
@@ -141,3 +142,4 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({
 };
 
 export default PhotoGallery;
+

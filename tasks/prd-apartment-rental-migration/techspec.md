@@ -167,8 +167,8 @@ interface Apartment {
 - `GET /api/v1/aptos/{id}/` - Detalhes de apartamento específico
   - Response: Apartamento completo com todas as fotos e vídeo
 
-- `GET /api/v1/builders/` - Lista construtoras
-  - Response: Lista de construtoras com fotos
+- `GET /api/v1/builders/` - Lista Empreendimentos
+  - Response: Lista de Empreendimentos com fotos
 
 - `GET /api/v1/builders/{id}/` - Detalhes da construtora
   - Response: Construtora completa com apartamentos relacionados
@@ -435,7 +435,7 @@ test.describe('Apartment Listing', () => {
    - **Dependência**: API endpoints funcionais
 
 4. **React Components Development** (Semana 4)
-   - Implementar componentes de listagem (apartamentos/construtoras)
+   - Implementar componentes de listagem (apartamentos/Empreendimentos)
    - Desenvolver modal de galeria de fotos
    - Implementar filtros e busca
    - Adicionar responsividade mobile

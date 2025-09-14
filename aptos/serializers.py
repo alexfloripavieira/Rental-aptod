@@ -11,7 +11,7 @@ class FotoSerializer(serializers.ModelSerializer):
 
 
 class BuilderFotoSerializer(serializers.ModelSerializer):
-    """Serializer para fotos das construtoras"""
+    """Serializer para fotos das Empreendimentos"""
     
     class Meta:
         model = BuilderFoto
@@ -19,7 +19,7 @@ class BuilderFotoSerializer(serializers.ModelSerializer):
 
 
 class BuildersSerializer(serializers.ModelSerializer):
-    """Serializer para construtoras com fotos relacionadas"""
+    """Serializer para Empreendimentos com fotos relacionadas"""
     builder_fotos = BuilderFotoSerializer(many=True, read_only=True)
     
     class Meta:
@@ -32,17 +32,27 @@ class BuildersSerializer(serializers.ModelSerializer):
 
 
 class BuildersListSerializer(serializers.ModelSerializer):
-    """Serializer simplificado para lista de construtoras (sem fotos para performance)"""
+    """Serializer simplificado para lista de Empreendimentos (sem fotos para performance)"""
     
     class Meta:
         model = Builders
         fields = ['id', 'name', 'city', 'state']
 
 
+class BuildersAddressSerializer(serializers.ModelSerializer):
+    """Serializer de endereço completo para uso em detalhes de Apartamento"""
+    class Meta:
+        model = Builders
+        fields = [
+            'id', 'name', 'street', 'neighborhood', 'city', 'state', 'zip_code', 'country'
+        ]
+
+
 class AptosSerializer(serializers.ModelSerializer):
     """Serializer completo para apartamentos com construtora e fotos"""
     fotos = FotoSerializer(many=True, read_only=True)
-    building_name = BuildersListSerializer(read_only=True)
+    # Para detalhes precisamos do endereço completo da construtora
+    building_name = BuildersAddressSerializer(read_only=True)
     
     # Campos computados para facilitar frontend
     building_full_address = serializers.SerializerMethodField()
@@ -80,13 +90,14 @@ class AptosListSerializer(serializers.ModelSerializer):
     building_name = BuildersListSerializer(read_only=True)
     photo_count = serializers.SerializerMethodField()
     main_photo = serializers.SerializerMethodField()
+    has_video = serializers.SerializerMethodField()
     
     class Meta:
         model = Aptos
         fields = [
             'id', 'unit_number', 'building_name', 'rental_price', 'is_available',
             'number_of_bedrooms', 'number_of_bathrooms', 'square_footage',
-            'photo_count', 'main_photo'
+            'photo_count', 'main_photo', 'video', 'has_video'
         ]
     
     def get_photo_count(self, obj):
@@ -99,3 +110,7 @@ class AptosListSerializer(serializers.ModelSerializer):
         if first_photo and first_photo.photos:
             return self.context['request'].build_absolute_uri(first_photo.photos.url)
         return None
+
+    def get_has_video(self, obj):
+        """Indica se o apartamento possui vídeo"""
+        return bool(getattr(obj, 'video', None))

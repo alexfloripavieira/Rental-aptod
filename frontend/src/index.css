@@ -34,6 +34,22 @@
 }
 
 @layer components {
+  /* Shared page elements */
+  .media-hero {
+    @apply relative h-64 bg-gray-100 dark:bg-gray-700;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold text-gray-900 dark:text-white;
+  }
+
+  .page-subtitle {
+    @apply text-gray-600 dark:text-gray-300 mt-1;
+  }
+
+  .page-actions {
+    @apply mt-6 flex flex-wrap gap-2;
+  }
   /* Button variants */
   .btn-primary {
     @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200;
@@ -148,4 +164,13 @@
 
 .dark body {
   @apply bg-gray-900 text-gray-100;
+}
+
+/* Dark variants for buttons */
+.dark .btn-outline {
+  @apply border-primary-400 text-primary-400 hover:bg-primary-900/20;
+}
+
+.dark .btn-secondary {
+  @apply border-gray-600 bg-gray-800 text-gray-200 hover:bg-gray-700;
 }

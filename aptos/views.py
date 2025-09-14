@@ -132,8 +132,8 @@ class AptosViewSet(viewsets.ReadOnlyModelViewSet):
 
 @extend_schema_view(
     list=extend_schema(
-        summary="Lista todas as construtoras",
-        description="Retorna lista de construtoras com suas fotos"
+        summary="Lista todas as Empreendimentos",
+        description="Retorna lista de Empreendimentos com suas fotos"
     ),
     retrieve=extend_schema(
         summary="Detalhes da construtora",
@@ -142,7 +142,7 @@ class AptosViewSet(viewsets.ReadOnlyModelViewSet):
 )
 class BuildersViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet para construtoras.
+    ViewSet para Empreendimentos.
     
     Filtros disponíveis:
     - city: filtrar por cidade

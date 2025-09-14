@@ -5,7 +5,7 @@
 - Necessário superusuário: `docker compose exec backend python manage.py createsuperuser`
 
 ## Cadastros principais
-- Construtoras (Builders): cadastrar nome/endereço e fotos em inline
+- Empreendimentos (Builders): cadastrar nome/endereço e fotos em inline
 - Apartamentos (Aptos): associar a uma construtora, definir atributos, fotos e vídeo
 
 ## Boas práticas

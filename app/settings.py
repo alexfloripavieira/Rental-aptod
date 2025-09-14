@@ -170,7 +170,7 @@ CORS_ALLOW_CREDENTIALS = True
 # drf-spectacular Configuration
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Aptos API',
-    'DESCRIPTION': 'API para gerenciamento de apartamentos e construtoras',
+    'DESCRIPTION': 'API para gerenciamento de apartamentos e Empreendimentos',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }

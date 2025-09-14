@@ -140,6 +140,11 @@ class ApiClient {
     return response.data;
   }
 
+  async getBuilderApartments(id: number): Promise<Apartment[]> {
+    const response = await this.client.get<Apartment[]>(`/builders/${id}/apartments/`);
+    return response.data;
+  }
+
   // Contact API (future implementation)
   async submitContact(contactData: ContactForm): Promise<{ success: boolean; message: string }> {
     const response = await this.client.post('/contact/', contactData);

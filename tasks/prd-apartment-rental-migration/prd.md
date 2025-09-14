@@ -24,7 +24,7 @@ Este PRD define a migração completa do sistema de gerenciamento de aluguel de 
 ## Histórias de Usuário
 
 ### Administrador do Sistema
-- Como administrador, quero acessar o painel admin Django modernizado para que possa gerenciar apartamentos e construtoras com interface mais intuitiva
+- Como administrador, quero acessar o painel admin Django modernizado para que possa gerenciar apartamentos e Empreendimentos com interface mais intuitiva
 - Como administrador, quero fazer upload de fotos e vídeos com previews imediatos para que possa visualizar o conteúdo antes de salvar
 - Como administrador, quero que o sistema funcione igual ao atual para que não precise reaprender processos
 
@@ -98,7 +98,7 @@ Este PRD define a migração completa do sistema de gerenciamento de aluguel de 
 ### Fluxos Principais:
 1. **Listagem de Apartamentos**: Grade responsiva com filtros e busca
 2. **Detalhes do Apartamento**: Modal/página com galeria de imagens/vídeos
-3. **Listagem de Construtoras**: Cards com informações e media
+3. **Listagem de Empreendimentos**: Cards com informações e media
 4. **Navegação Mobile**: Menu hamburger, touch-friendly
 
 ### Requisitos UX:

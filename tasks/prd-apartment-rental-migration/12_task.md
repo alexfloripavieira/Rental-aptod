@@ -208,12 +208,12 @@ Lista apartamentos com paginação e filtros.
 }
 ```
 
-#### Construtoras
+#### Empreendimentos
 
 ```http
 GET /api/v1/builders/
 ```
-Lista construtoras com suas fotos.
+Lista Empreendimentos com suas fotos.
 
 **Response:**
 ```json
@@ -295,7 +295,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ### Core Models
 
 ```sql
--- Builders (Construtoras)
+-- Builders (Empreendimentos)
 CREATE TABLE aptos_builders (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -965,11 +965,11 @@ curl -f http://localhost/aptos/
 3. **Confirme** a exclusão
 4. ⚠️ **Atenção**: Esta ação não pode ser desfeita
 
-## Gerenciando Construtoras
+## Gerenciando Empreendimentos
 
 ### Adicionando Nova Construtora
 
-1. Acesse **Construtoras** → **Adicionar**
+1. Acesse **Empreendimentos** → **Adicionar**
 2. Preencha os dados:
    - **Nome**: Nome da construtora/edifício
    - **Endereço completo**: Rua, bairro, cidade, estado, CEP, país

@@ -17,11 +17,11 @@ unblocks: ["7.0", "10.0"]
 
 ## Visão Geral
 
-Implementar todos os componentes React principais para listagem de apartamentos e construtoras, galeria de fotos/vídeos, filtros de busca e detalhes, garantindo paridade funcional 100% com o sistema atual.
+Implementar todos os componentes React principais para listagem de apartamentos e Empreendimentos, galeria de fotos/vídeos, filtros de busca e detalhes, garantindo paridade funcional 100% com o sistema atual.
 
 <requirements>
 - Componente de listagem de apartamentos com grid responsivo
-- Componente de listagem de construtoras
+- Componente de listagem de Empreendimentos
 - Modal de galeria de fotos com navegação
 - Player de vídeo integrado
 - Filtros de busca em tempo real

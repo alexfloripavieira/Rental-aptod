@@ -17,7 +17,7 @@ unblocks: ["4.0", "5.0"]
 
 ## Visão Geral
 
-Implementar APIs REST completas utilizando Django REST Framework para expor dados de apartamentos e construtoras, mantendo 100% de paridade funcional com o sistema atual e preparando para consumo pelo frontend React.
+Implementar APIs REST completas utilizando Django REST Framework para expor dados de apartamentos e Empreendimentos, mantendo 100% de paridade funcional com o sistema atual e preparando para consumo pelo frontend React.
 
 <requirements>
 - Django REST Framework configurado e funcional
@@ -102,7 +102,7 @@ class AptosViewSet(viewsets.ReadOnlyModelViewSet):
 
 class BuildersViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    ViewSet para construtoras
+    ViewSet para Empreendimentos
     """
     serializer_class = BuildersSerializer
     
@@ -165,7 +165,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 - `GET /api/v1/aptos/` - Lista apartamentos com filtros
 - `GET /api/v1/aptos/{id}/` - Detalhes apartamento específico
-- `GET /api/v1/builders/` - Lista construtoras
+- `GET /api/v1/builders/` - Lista Empreendimentos
 - `GET /api/v1/builders/{id}/` - Detalhes construtora específica
 
 ### Query Parameters Suportados:

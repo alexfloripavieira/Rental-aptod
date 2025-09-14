@@ -8,13 +8,13 @@ from .models import Builders, Aptos, Foto, BuilderFoto
 
 
 class BuildersAPITestCase(APITestCase):
-    """Testes para API de Construtoras"""
+    """Testes para API de Empreendimentos"""
     
     def setUp(self):
         """Configuração inicial dos testes"""
         self.client = APIClient()
         
-        # Criar construtoras de teste
+        # Criar Empreendimentos de teste
         self.builder1 = Builders.objects.create(
             name="Construtora A",
             street="Rua das Flores, 123",
@@ -39,7 +39,7 @@ class BuildersAPITestCase(APITestCase):
         self.builders_list_url = reverse('builders-list')
     
     def test_list_builders(self):
-        """Testa listagem de construtoras"""
+        """Testa listagem de Empreendimentos"""
         response = self.client.get(self.builders_list_url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
