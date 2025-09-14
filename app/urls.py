@@ -20,6 +20,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from .media_serve import serve_media
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -37,5 +38,5 @@ urlpatterns = [
     re_path(r"^(?!admin/|api/|static/|media/).*$", TemplateView.as_view(template_name="index.html"), name="frontend"),
 ] 
 
-# Media serving (filesystem)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Media serving (filesystem) with Range support
+urlpatterns += [path('media/<path:path>', serve_media, name='media')]
