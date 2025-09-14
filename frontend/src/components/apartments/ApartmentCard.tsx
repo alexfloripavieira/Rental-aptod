@@ -58,7 +58,7 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
               />
             ) : coverUrl ? (
               <div
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate('/aptos/' + apartment.id + '?gallery=1'); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowGallery(true); }}
                 className="cursor-pointer w-full h-full"
               >
                 <LazyImage
@@ -150,7 +150,7 @@ export const ApartmentCard: React.FC<ApartmentCardProps> = ({ apartment }) => {
             <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
               {photoCount > 0 && (
                 <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate('/aptos/' + apartment.id + '?gallery=1'); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowGallery(true); }}
                   className="btn-outline"
                   aria-describedby={'apartment-' + apartment.id}
                 >
