@@ -1,0 +1,13 @@
+[run]
+source = aptos
+branch = True
+
+[report]
+omit =
+    */migrations/*
+    aptos/admin.py
+    aptos/management/*
+    app/*
+    manage.py
+    wsgi.py
+    asgi.py
