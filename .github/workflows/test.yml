@@ -73,11 +73,19 @@ jobs:
       - name: Wait for services to be healthy
         run: |
           set -e
-          for i in {1..60}; do
-            curl -sSf -o /dev/null http://localhost:3001/aptos && break || true
-            sleep 2
-          done
-          curl -sSf -o /dev/null http://localhost:8001/api/v1/health/
+          attempt() { url=$1; tries=$2; delay=$3; name=$4; \
+            for i in $(seq 1 $tries); do \
+              if curl -sSf -o /dev/null "$url"; then echo "OK: $name"; return 0; fi; \
+              echo "waiting $name ($i/$tries)"; sleep $delay; \
+            done; \
+            echo "FAILED: $name"; docker compose -f docker-compose.test.yml ps; \
+            docker compose -f docker-compose.test.yml logs --tail=200 backend || true; \
+            docker compose -f docker-compose.test.yml logs --tail=200 frontend || true; \
+            exit 1; }
+          # first ensure backend API is responsive
+          attempt http://localhost:8001/api/v1/health/ 90 2 "backend health"
+          # then ensure frontend route is served
+          attempt http://localhost:3001/aptos 90 2 "frontend aptos"
       - name: Install Playwright Browsers
         uses: microsoft/playwright-github-action@v1
       - name: Install Playwright package
