@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'drf_spectacular',
+    'db_file_storage',
     # Local apps
     'aptos'
 ]
@@ -158,7 +159,15 @@ STORAGES = {
     },
 }
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# Store uploaded media in PostgreSQL (no disk/volume required)
+DEFAULT_FILE_STORAGE = os.getenv(
+    'DJANGO_DEFAULT_FILE_STORAGE',
+    'db_file_storage.storage.DatabaseFileStorage'
+)
+DB_FILE_STORAGE_IMAGE_MODEL = 'db_file_storage.Image'
+DB_FILE_STORAGE_FILE_MODEL = 'db_file_storage.File'
+
+MEDIA_ROOT = os.getenv('DJANGO_MEDIA_ROOT', os.path.join(BASE_DIR, "media"))
 MEDIA_URL = "/media/"
 
 # Upload limits and temp directory (tuneable via env)
@@ -208,6 +217,54 @@ CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(default_csrf + env_csrf))
 # Security behind proxy (Railway terminates TLS)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = os.getenv('DJANGO_SECURE_SSL_REDIRECT', 'false').lower() in ('1', 'true', 'yes')
+
+# Logging: send errors to console so Railway Deploy Logs capture tracebacks
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(name)s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
+# Optional: S3-compatible media storage (e.g., Cloudflare R2, AWS S3)
+if os.getenv('AWS_STORAGE_BUCKET_NAME'):
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    }
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')  # ex.: https://<account>.r2.cloudflarestorage.com
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'auto')
+    AWS_S3_SIGNATURE_VERSION = os.getenv('AWS_S3_SIGNATURE_VERSION', 's3v4')
+    AWS_S3_ADDRESSING_STYLE = os.getenv('AWS_S3_ADDRESSING_STYLE', 'virtual')
+    AWS_QUERYSTRING_AUTH = os.getenv('AWS_QUERYSTRING_AUTH', 'False').lower() in ('1', 'true', 'yes')
+    AWS_DEFAULT_ACL = None
+    # Optional custom domain for CDN/public bucket
+    AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN')
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 
 # drf-spectacular Configuration
 SPECTACULAR_SETTINGS = {

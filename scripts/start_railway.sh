@@ -5,10 +5,11 @@ echo "[start] Applying migrations..."
 python manage.py migrate --noinput
 
 echo "[start] Ensuring media and temp directories..."
-mkdir -p /app/media/aptos/aptos_videos \
-         /app/media/aptos/aptos_photos \
-         /app/media/builders/builders_videos \
-         /app/media/builders/builders_photos \
+MEDIA_ROOT_PATH=${DJANGO_MEDIA_ROOT:-/app/media}
+mkdir -p "$MEDIA_ROOT_PATH/aptos/aptos_videos" \
+         "$MEDIA_ROOT_PATH/aptos/aptos_photos" \
+         "$MEDIA_ROOT_PATH/builders/builders_videos" \
+         "$MEDIA_ROOT_PATH/builders/builders_photos" \
          /app/tmp/uploads || true
 
 echo "[start] Ensuring superuser (if env provided)..."
@@ -38,4 +39,7 @@ echo "[start] Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "[start] Launching Gunicorn..."
-exec gunicorn app.wsgi:application --bind 0.0.0.0:${PORT:-8000}
+exec gunicorn app.wsgi:application \
+  --bind 0.0.0.0:${PORT:-8000} \
+  --access-logfile - \
+  --error-logfile -

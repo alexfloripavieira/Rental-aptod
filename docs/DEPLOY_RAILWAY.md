@@ -21,6 +21,10 @@ Este projeto está pronto para deploy no Railway usando Gunicorn e WhiteNoise.
 - `DJANGO_CSRF_TRUSTED_ORIGINS`: `https://seu-dominio.com,https://*.railway.app`
 - `DATABASE_URL`: criada automaticamente ao adicionar o Postgres plugin
 - Opcional: `DJANGO_SECURE_SSL_REDIRECT=True` após HTTPS ativo
+- Uploads e mídia:
+  - `DJANGO_MEDIA_ROOT` (opcional): caminho absoluto para mídia quando usar Volume (ex.: `/data`)
+  - `DJANGO_FILE_UPLOAD_TEMP_DIR` (opcional): diretório temporário de upload (padrão `/app/tmp/uploads`)
+  - `DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE` / `DJANGO_FILE_UPLOAD_MAX_MEMORY_SIZE`: ajuste limites conforme seu caso
 
 ## Deploy
 
@@ -37,6 +41,30 @@ Este repo executa migrações e `collectstatic` automaticamente em cada deploy v
 Se precisar criar o admin: abra o Shell do Railway e rode `python manage.py createsuperuser`.
 
 5. Adicione seu domínio em Settings → Domains e aponte um CNAME no DNS para o host do serviço
+
+## Persistindo uploads (Volume)
+
+1. Crie um Volume e monte no serviço em `/data`
+2. Defina `DJANGO_MEDIA_ROOT=/data`
+3. Redeploy — o script de start cria as subpastas necessárias
+
+## Alternativa sem Volume: Cloudflare R2 (S3)
+
+Se o menu de Volumes não estiver disponível na sua conta/plano, use um storage S3‑compatível (ex.: Cloudflare R2) para armazenar mídia:
+
+1. Crie um bucket no R2 (ex.: `rental-media`) e ative acesso público (R2.dev) ou CDN próprio
+2. Gere um par de chaves (Access Key/Secret Key) e anote o `Account ID`
+3. Railway → Variables (serviço web):
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+   - `AWS_STORAGE_BUCKET_NAME=rental-media`
+   - `AWS_S3_ENDPOINT_URL=https://<ACCOUNT_ID>.r2.cloudflarestorage.com`
+   - `AWS_S3_REGION_NAME=auto`
+   - `AWS_S3_ADDRESSING_STYLE=virtual`
+   - `AWS_S3_SIGNATURE_VERSION=s3v4`
+   - (opcional) `AWS_S3_CUSTOM_DOMAIN=<bucket>.<ACCOUNT_ID>.r2.cloudflarestorage.com` ou um domínio próprio via CNAME
+4. Redeploy — uploads do Django irão para o bucket R2
+
 
 ## Notas
 

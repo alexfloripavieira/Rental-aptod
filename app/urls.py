@@ -35,4 +35,10 @@ urlpatterns = [
     # path("legacy/", include("aptos.urls")),
     # Catch-all do SPA: envia tudo que não for API/Admin/Static/Media para index.html
     re_path(r"^(?!admin/|api/|static/|media/).*$", TemplateView.as_view(template_name="index.html"), name="frontend"),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] 
+
+# Media serving: database storage or filesystem
+if getattr(settings, 'DEFAULT_FILE_STORAGE', '') == 'db_file_storage.storage.DatabaseFileStorage':
+    urlpatterns += [path("media/", include("db_file_storage.urls"))]
+else:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
