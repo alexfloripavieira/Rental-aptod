@@ -30,11 +30,11 @@ Este projeto está pronto para deploy no Railway usando Gunicorn e WhiteNoise.
    
    `gunicorn app.wsgi:application --bind 0.0.0.0:$PORT`
 
-4. Após o primeiro deploy, rode no Shell do Railway:
-   
-   - `python manage.py migrate`
-   - `python manage.py collectstatic --noinput`
-   - Opcional: `python manage.py createsuperuser`
+4. Pós-deploy automático
+
+Este repo executa migrações e `collectstatic` automaticamente em cada deploy via `scripts/start_railway.sh`, chamado pelo `Procfile`.
+
+Se precisar criar o admin: abra o Shell do Railway e rode `python manage.py createsuperuser`.
 
 5. Adicione seu domínio em Settings → Domains e aponte um CNAME no DNS para o host do serviço
 
@@ -43,4 +43,3 @@ Este projeto está pronto para deploy no Railway usando Gunicorn e WhiteNoise.
 - Estáticos servidos pelo WhiteNoise (`STATIC_ROOT=staticfiles`); não é necessário S3/CDN para começar
 - Banco local continua SQLite por padrão; em produção o `DATABASE_URL` ativa o Postgres
 - Ajuste CORS/CSRF conforme seu frontend/domínios
-
