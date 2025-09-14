@@ -60,11 +60,10 @@ RUN mkdir -p /app/media/aptos/aptos_videos \
     /app/media/aptos/aptos_photos \
     /app/media/builders/builders_videos \
     /app/media/builders/builders_photos \
-    /app/static /app/logs && \
-    chown -R appuser:appgroup /app/media /app/static /app/logs
+    /app/static /app/staticfiles /app/logs && \
+    chown -R appuser:appgroup /app/media /app/static /app/staticfiles /app/logs
 
-# Coletar arquivos estáticos
-RUN python manage.py collectstatic --noinput --settings=app.settings_docker
+# (Removido) Coleta de estáticos no build para evitar duplicidade / permissões
 
 # Mudar para usuário não-root
 USER appuser
