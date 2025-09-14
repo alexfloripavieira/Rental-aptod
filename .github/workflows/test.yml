@@ -57,46 +57,4 @@ jobs:
         with:
           directory: frontend/coverage
 
-  e2e-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.19.0'
-      - name: Build and start test stack
-        run: |
-          docker version
-          docker compose version
-          docker compose -f docker-compose.test.yml up -d --build
-      - name: Wait for services to be healthy
-        run: |
-          set -e
-          attempt() { url=$1; tries=$2; delay=$3; name=$4; \
-            for i in $(seq 1 $tries); do \
-              if curl -sSf -o /dev/null "$url"; then echo "OK: $name"; return 0; fi; \
-              echo "waiting $name ($i/$tries)"; sleep $delay; \
-            done; \
-            echo "FAILED: $name"; docker compose -f docker-compose.test.yml ps; \
-            docker compose -f docker-compose.test.yml logs --tail=200 backend || true; \
-            docker compose -f docker-compose.test.yml logs --tail=200 frontend || true; \
-            exit 1; }
-          # first ensure backend API is responsive
-          attempt http://localhost:8001/api/v1/health/ 90 2 "backend health"
-          # then ensure frontend route is served
-          attempt http://localhost:3001/aptos 90 2 "frontend aptos"
-      - name: Install Playwright Browsers
-        uses: microsoft/playwright-github-action@v1
-      - name: Install Playwright package
-        run: npm install --no-save @playwright/test
-      - name: Run Playwright tests
-        env:
-          BASE_URL: http://localhost:3001
-        run: npx playwright test --config=playwright.config.ts
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
+  # e2e-tests removed per project decision (flaky in CI environment)

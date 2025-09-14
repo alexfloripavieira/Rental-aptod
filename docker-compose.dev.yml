@@ -1,5 +1,4 @@
 # Docker Compose para ambiente de desenvolvimento
-version: '3.8'
 
 services:
   db:

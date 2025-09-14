@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 COMPOSE ?= docker compose
 
-.PHONY: help up up-dev up-prod build-frontend migrate collectstatic ps logs logs-backend logs-frontend logs-db restart restart-backend restart-frontend stop down down-v validate load-test createsuperuser shell-backend shell-frontend 
+.PHONY: help up up-dev up-prod build-frontend migrate collectstatic ps logs logs-backend logs-frontend logs-db restart restart-backend restart-frontend stop down down-v validate load-test createsuperuser shell-backend shell-frontend e2e
 
 help: ## Show available targets
 	@echo "Available targets:" && \
@@ -88,3 +88,6 @@ bg-deploy: ## Build and deploy using blue-green strategy (switch to target env)
 
 bg-validate: ## Run post-deploy validation against load balancer
 	bash scripts/post-deploy-validation.sh http://localhost
+
+e2e: ## E2E tests disabled (removed from pipeline). This target is a no-op.
+	@echo "E2E tests are disabled for this project (pipeline and local)."

@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   nginx:
@@ -38,4 +37,3 @@ volumes:
 networks:
   aptos-network:
     driver: bridge
-
