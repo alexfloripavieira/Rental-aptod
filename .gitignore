@@ -47,3 +47,4 @@ logs/
 .mcp.json
 haproxy/active_*
 CLAUDE.md
+rental-apto.pem

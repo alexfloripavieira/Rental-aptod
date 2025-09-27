@@ -33,6 +33,10 @@ FROM dependencies as development
 # Copiar código fonte
 COPY --chown=appuser:appgroup . .
 
+# Garante diretórios temporários necessários para o Django
+RUN mkdir -p tmp/uploads && \
+    chown -R appuser:appgroup tmp
+
 # Mudar para usuário não-root
 USER appuser
 
