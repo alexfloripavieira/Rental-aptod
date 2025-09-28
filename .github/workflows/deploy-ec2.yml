@@ -39,7 +39,7 @@ jobs:
       - name: Build frontend (sanity check)
         run: |
           cd frontend
-          npm ci
+          npm install
           npm run build
 
       - name: Deploy via SSH
