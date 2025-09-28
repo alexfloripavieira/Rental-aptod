@@ -98,12 +98,15 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False  # Para desenvolvimento, manter False para segurança
 # Configurações de arquivos estáticos e mídia
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.getenv('DJANGO_STATIC_ROOT', os.path.join(BASE_DIR, 'staticfiles'))
 
 # Diretórios adicionais para arquivos estáticos
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+if STATIC_ROOT == os.path.join(BASE_DIR, 'staticfiles'):
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]
+else:
+    STATICFILES_DIRS = []
 
 # Configurações de mídia
 MEDIA_URL = '/media/'
