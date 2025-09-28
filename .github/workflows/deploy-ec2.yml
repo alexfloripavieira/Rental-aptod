@@ -25,6 +25,7 @@ jobs:
       - name: Django system check
         env:
           DJANGO_SETTINGS_MODULE: app.conf.production
+          DJANGO_LOG_DIR: ${{ runner.temp }}/logs
         run: |
           python manage.py check
 

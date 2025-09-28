@@ -17,8 +17,14 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
 SECURE_HSTS_PRELOAD = env_bool("DJANGO_SECURE_HSTS_PRELOAD", False)
 X_FRAME_OPTIONS = env("DJANGO_X_FRAME_OPTIONS", "DENY")
 
-LOG_PATH = Path(env("DJANGO_LOG_DIR", "/app/logs"))
-LOG_PATH.mkdir(parents=True, exist_ok=True)
+LOG_PATH = Path(env("DJANGO_LOG_DIR", str(BASE_DIR / "logs")))
+try:
+    LOG_PATH.mkdir(parents=True, exist_ok=True)
+except PermissionError:
+    from tempfile import gettempdir
+
+    LOG_PATH = Path(gettempdir()) / "aptos-logs"
+    LOG_PATH.mkdir(parents=True, exist_ok=True)
 
 LOGGING = {
     "version": 1,
