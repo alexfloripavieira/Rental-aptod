@@ -19,16 +19,16 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: REMOTE_BRANCH
+          script: |
+            set -euo pipefail
+            branch="${REMOTE_BRANCH:-main}"
+            cd ~/Rental-aptod
+            git fetch --all
+            git checkout "$branch"
+            git reset --hard "origin/$branch"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
         env:
           REMOTE_BRANCH: ${{ github.ref_name }}
-        script: |
-          set -euo pipefail
-          branch="${REMOTE_BRANCH:-main}"
-          cd ~/Rental-aptod
-          git fetch --all
-          git checkout "$branch"
-          git reset --hard "origin/$branch"
-          docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
 
       - name: Cleanup old images (remote)
         if: always()
