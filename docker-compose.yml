@@ -49,8 +49,6 @@ services:
       - media_volume:/app/media
       - static_volume:/app/static
       - logs_volume:/app/logs
-      # Para desenvolvimento - hot reload
-      - ./:/app:ro
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     healthcheck:
