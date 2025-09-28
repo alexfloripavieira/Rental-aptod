@@ -140,20 +140,20 @@ templates/admin/aptos/
 
 ```bash
 # 1. Coletar arquivos estáticos
-python manage.py collectstatic --noinput --settings=app.settings_docker
+python manage.py collectstatic --noinput --settings=app.conf.production
 
 # 2. Aplicar migrações
-python manage.py migrate --settings=app.settings_docker
+python manage.py migrate --settings=app.conf.production
 
 # 3. Criar superuser (se necessário)
-python manage.py createsuperuser --settings=app.settings_docker
+python manage.py createsuperuser --settings=app.conf.production
 
 # 4. Backup antes deploy
 python manage.py backup_database --output-dir /app/backups
 python manage.py backup_media --output-dir /app/backups
 
 # 5. Verificar configurações
-python manage.py check --settings=app.settings_docker
+python manage.py check --settings=app.conf.production
 ```
 
 ## Monitoramento
@@ -181,7 +181,7 @@ python manage.py check --settings=app.settings_docker
 ### PostgreSQL Connection Issues
 ```bash
 # Verificar conexão
-python manage.py check --database default --settings=app.settings_postgresql
+python manage.py check --database default --settings=app.conf.production
 
 # Test query
 python manage.py shell -c "from django.db import connection; print(connection.queries)"
@@ -205,3 +205,56 @@ python manage.py collectstatic --clear --noinput
 # Check static root
 ls -la staticfiles/admin/css/custom_admin.css
 ```
+
+### Docker Compose Issues
+```bash
+# Build com logs detalhados
+docker compose --profile admin build --progress=plain
+
+# Verificar variáveis de ambiente carregadas
+docker compose run --rm web env | sort
+
+# Garantir permissões corretas no container
+docker compose exec web chmod -R 755 /app/media /app/static
+```
+
+### Backup Restore Failures
+```bash
+# Validar integridade do arquivo
+pg_restore --list /app/backups/latest.dump
+
+# Simular restore em banco temporário
+createdb admin_restore_test
+pg_restore --dbname=admin_restore_test /app/backups/latest.dump
+
+# Limpar banco temporário após teste
+dropdb admin_restore_test
+```
+
+### Custom Admin Não Atualiza
+```bash
+# Limpar cache do template loader
+find django_cache/ -type f -delete
+
+# Reconstruir assets estáticos
+npm run build-admin-assets
+
+# Reiniciar serviço web
+docker compose restart web
+```
+
+> O comando `npm run build-admin-assets` está definido em `frontend/package.json` e reutiliza o pipeline do Vite para empacotar os assets do admin.
+
+## Checklist de Manutenção
+- Verificar backups recentes em `/app/backups`
+- Confirmar saúde das instâncias Docker (`docker compose ps`)
+- Rodar `python manage.py check --deploy` a cada release
+- Revisar logs críticos no último dia (`tail -n 200 /app/logs/django.log`)
+- Auditar permissões de mídia mensalmente (`find media -type f -perm 644`)
+
+## Referências & Recursos
+- Documentação Django Admin: https://docs.djangoproject.com/en/stable/ref/contrib/admin/
+- Boas práticas PostgreSQL: https://wiki.postgresql.org/wiki/Performance_Optimization
+- Guia oficial Docker Compose: https://docs.docker.com/compose/
+- Redis para Django: https://django-redis-cache.readthedocs.io/
+- Celery para tarefas agendadas: https://docs.celeryq.dev/en/stable/

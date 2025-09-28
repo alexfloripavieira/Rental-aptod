@@ -1,4 +1,4 @@
-# Docker Compose para ambiente de desenvolvimento
+# Overrides específicos para desenvolvimento local
 
 services:
   db:
@@ -6,22 +6,27 @@ services:
       POSTGRES_DB: aptos_dev
       POSTGRES_USER: dev_user
       POSTGRES_PASSWORD: dev123
-    volumes:
-      - postgres_dev_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
 
   backend:
     build:
       target: development
     environment:
-      - DJANGO_DEBUG=True
-      - POSTGRES_DB=aptos_dev
-      - POSTGRES_USER=dev_user
-      - POSTGRES_PASSWORD=dev123
+      DJANGO_SETTINGS_MODULE: app.conf.development
+      DJANGO_DEBUG: "True"
+      POSTGRES_DB: aptos_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev123
     volumes:
       - ./:/app
-      - media_dev_volume:/app/media
+      - media_volume:/app/media
+      - static_volume:/app/static
+      - logs_volume:/app/logs
+    ports:
+      - "8000:8000"
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
   frontend:
@@ -32,8 +37,12 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/api/v1
+      REACT_APP_API_URL: http://localhost:8000/api/v1
+      VITE_API_BASE_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
 
 volumes:
   postgres_dev_data:
-  media_dev_volume:

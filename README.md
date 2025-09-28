@@ -15,14 +15,19 @@ Aplicação de gerenciamento de apartamentos com frontend em React (Vite + Tailw
 Veja também o changelog: `CHANGELOG.md`.
 
 ## Como rodar (rápido)
-- Dev (React + Django): `make up`
-- Produção local (Nginx): `make up-prod`
+- Dev (React + Django): `make up` (usa `docker-compose.yml` + `docker-compose.dev.yml`)
+- Produção local (Nginx): `make up-prod` (usa overrides de produção)
 - Blue‑Green deploy: `make bg-deploy` e `make bg-validate`
 
 ### URLs padrão
 - Frontend: http://localhost:3000
 - API: http://localhost:8000/api/v1
 - Admin: http://localhost:8000/admin/
+
+## Ambientes com Docker Compose
+- `docker-compose.yml`: serviços base (Postgres, backend, nginx).
+- `docker-compose.dev.yml`: overrides para hot reload e ferramentas de desenvolvimento (usado por `make up`).
+- `docker-compose.prod.yml`: ajustes de produção (volumes persistentes, nginx) utilizados pelo `make up-prod` e pelo workflow de deploy.
 
 ## Testes e validação
 - Backend (Django): `docker compose exec backend python manage.py test`

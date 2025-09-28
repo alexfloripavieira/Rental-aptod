@@ -22,7 +22,7 @@ services:
     depends_on:
       - db
     environment:
-      - DJANGO_SETTINGS_MODULE=app.settings_docker
+      - DJANGO_SETTINGS_MODULE=app.conf.docker
     volumes:
       - media_volume:/app/media
     networks: [aptos-blue, aptos-db]
@@ -55,7 +55,7 @@ services:
     depends_on:
       - db
     environment:
-      - DJANGO_SETTINGS_MODULE=app.settings_docker
+      - DJANGO_SETTINGS_MODULE=app.conf.docker
     volumes:
       - media_volume:/app/media
     networks: [aptos-green, aptos-db]

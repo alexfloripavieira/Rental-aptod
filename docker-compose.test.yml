@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
       target: development
     environment:
-      - DJANGO_SETTINGS_MODULE=app.settings_docker
+      - DJANGO_SETTINGS_MODULE=app.conf.development
       - POSTGRES_DB=aptos
       - POSTGRES_USER=aptos_user
       - POSTGRES_PASSWORD=changeme123

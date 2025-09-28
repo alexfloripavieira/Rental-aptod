@@ -1,6 +1,6 @@
 
 services:
-  # Banco de dados PostgreSQL
+  ## PostgreSQL (compartilhado entre ambientes)
   db:
     image: postgres:15-alpine
     container_name: aptos-db
@@ -12,8 +12,6 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aptos_user} -d ${POSTGRES_DB:-aptos_db}"]
       interval: 10s
@@ -23,12 +21,12 @@ services:
     networks:
       - aptos-network
 
-  # Backend Django
+  ## Django backend (produção por padrão)
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-      target: ${BUILD_TARGET:-development}
+      target: ${BUILD_TARGET:-production}
     container_name: aptos-backend
     restart: unless-stopped
     user: "0:0"
@@ -36,22 +34,20 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DJANGO_SETTINGS_MODULE=app.settings_docker
-      - POSTGRES_DB=${POSTGRES_DB:-aptos_db}
-      - POSTGRES_USER=${POSTGRES_USER:-aptos_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme123}
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-dev-key-change-in-production}
-      - DJANGO_DEBUG=${DJANGO_DEBUG:-True}
-      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
-      - DJANGO_STATIC_ROOT=/app/static
+      DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-app.conf.production}
+      POSTGRES_DB: ${POSTGRES_DB:-aptos_db}
+      POSTGRES_USER: ${POSTGRES_USER:-aptos_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme123}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-dev-key-change-in-production}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DJANGO_STATIC_ROOT: ${DJANGO_STATIC_ROOT:-/app/static}
     volumes:
       - media_volume:/app/media
       - static_volume:/app/static
       - logs_volume:/app/logs
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
     healthcheck:
       test: ["CMD", "python", "manage.py", "check", "--database", "default"]
       interval: 30s
@@ -61,48 +57,15 @@ services:
     networks:
       - aptos-network
 
-  # Frontend React (preparado para futuro)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: ${FRONTEND_DOCKERFILE:-Dockerfile.dev}
-    container_name: aptos-frontend
-    restart: unless-stopped
-    depends_on:
-      - backend
-    environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000/api/v1}
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
-      - CHOKIDAR_USEPOLLING=true
-      - WDS_SOCKET_PORT=0
-    volumes:
-      # Para desenvolvimento - hot reload
-      - ./frontend:/app:rw
-    ports:
-      - "${FRONTEND_PORT:-3000}:3000"
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000', r => { process.exit(r.statusCode < 400 ? 0 : 1) }).on('error', () => process.exit(1))\""]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    networks:
-      - aptos-network
-    profiles:
-      - react
-
-  # Nginx Proxy (produção)
+  ## Nginx reverse proxy (exposto em overrides conforme necessário)
   nginx:
     build:
       context: ./nginx
-      dockerfile: Dockerfile
     container_name: aptos-nginx
     restart: unless-stopped
     depends_on:
-      - backend
-    ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
+      backend:
+        condition: service_started
     volumes:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx

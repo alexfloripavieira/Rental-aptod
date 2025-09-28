@@ -51,13 +51,16 @@ DJANGO_SUPERUSER_EMAIL=admin@example.com
 
 REACT_APP_API_URL=http://<ip-publico-ou-dominio>/api/v1
 VITE_API_BASE_URL=http://<ip-publico-ou-dominio>/api/v1
+
+# (Opcional) sobrescrever módulo de settings; o padrão já usa `app.conf.production`
+# DJANGO_SETTINGS_MODULE=app.conf.production
 ```
 
 > Sempre que o IP público mudar, atualize as variáveis e reinicie os containers (`docker compose ... up -d`). Use um Elastic IP para manter endereço fixo.
 
 ## 3. Primeiro deploy manual
 
-1. Geração inicial (se ainda não existir imagem no servidor):
+1. Geração inicial (se ainda não existir imagem no servidor). O comando combina o arquivo base e o override de produção:
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
    ```
@@ -82,11 +85,12 @@ Somente esses três secrets são necessários, já que o build e o deploy aconte
 ### 4.2 Fluxo do workflow `Deploy to EC2`
 
 1. Faz checkout do repositório.
-2. Conecta via SSH ao EC2, executa `git pull` no branch alvo e roda:
+2. Executa checagens locais (manage.py check com `app.conf.production` e `npm run build`).
+3. Conecta via SSH ao EC2, executa `git pull` no branch alvo e roda:
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
    ```
-3. (Opcional) Prune de imagens antigas.
+4. (Opcional) Prune de imagens antigas.
 
 ### 4.3 Estrutura esperada no EC2
 
