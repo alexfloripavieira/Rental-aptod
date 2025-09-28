@@ -32,7 +32,7 @@ services:
       - media_prod_volume:/media:ro
       - static_prod_volume:/static:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
 volumes:
   postgres_prod_data:
