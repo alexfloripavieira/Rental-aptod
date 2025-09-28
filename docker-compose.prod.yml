@@ -20,12 +20,6 @@ services:
       - logs_prod_volume:/app/logs
     # Sem ports expostos - via nginx
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
-      target: production
-
   nginx:
     ports:
       - "${HTTP_PORT:-80}:80"
