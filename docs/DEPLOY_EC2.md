@@ -82,7 +82,7 @@ Somente esses três secrets são necessários, já que o build e o deploy aconte
 ### 4.2 Fluxo do workflow `Deploy to EC2`
 
 1. Faz checkout do repositório.
-2. Conecta via SSH ao EC2, executa `git pull` e roda:
+2. Conecta via SSH ao EC2, executa `git pull` no branch alvo e roda:
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
    ```
