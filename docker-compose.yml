@@ -105,9 +105,6 @@ services:
     volumes:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
-      - media_volume:/media:ro
-      - static_volume:/usr/share/nginx/html/static:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
