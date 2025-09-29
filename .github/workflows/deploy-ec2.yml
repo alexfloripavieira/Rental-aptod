@@ -56,12 +56,8 @@ jobs:
             git fetch --all
             git checkout "$branch"
             git reset --hard "origin/$branch"
-            # Build frontend before starting services
-            make build-frontend
-            # Copy built files to Django templates and static directories
-            docker compose -f docker-compose.yml -f docker-compose.dev.yml cp frontend:/app/dist/index.html ./app/templates/
-            docker run --rm -v $(pwd)/frontend/dist/assets:/source -v rental-aptod_static_prod_volume:/target alpine sh -c "cp -r /source/* /target/"
-            docker run --rm -v $(pwd)/frontend/public:/source -v rental-aptod_static_prod_volume:/target alpine sh -c "cp /source/* /target/"
+            # Build frontend and copy static files
+            make build-frontend-prod
             # Start production services
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
         env:

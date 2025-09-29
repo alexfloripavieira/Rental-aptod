@@ -31,6 +31,13 @@ up-prod: ## Start production-like stack (Nginx + Django). Requires built fronten
 build-frontend: ## Build frontend (Vite)
 	cd frontend && npm ci && npm run build
 
+build-frontend-prod: ## Build frontend and copy to production locations
+	cd frontend && npm ci && npm run build
+	cp frontend/dist/index.html app/templates/
+	mkdir -p static/assets static
+	cp -r frontend/dist/assets/* static/assets/ 2>/dev/null || true
+	cp frontend/public/* static/ 2>/dev/null || true
+
 migrate: ## Apply Django migrations
 	$(COMPOSE_CMD) exec backend python manage.py migrate --noinput
 
