@@ -69,6 +69,22 @@ jobs:
               exit 1
             fi
 
+            # Ensure comment-only lines are valid for docker compose by prefixing with '# '
+            if grep -qE '^[[:space:]]*[^#=][^=]*$' .env; then
+              echo "🛠️ Normalizing comments inside .env"
+              tmp_env=$(mktemp)
+              awk '{
+                if ($0 ~ /^[[:space:]]*$/) { print; next }
+                if ($0 ~ /^[[:space:]]*#/) { print; next }
+                if (index($0, "=") > 0) { print; next }
+                sub(/^[[:space:]]*/, "# ")
+                print
+                next
+              }
+              { print }' .env > "$tmp_env"
+              mv "$tmp_env" .env
+            fi
+
             echo "🔄 Updating code..."
             git fetch --all
             git checkout "$branch"
@@ -82,7 +98,7 @@ jobs:
             echo "🧹 Cleaning up disk space..."
             docker system prune -f --volumes || true
             docker builder prune -f || true
-            rm -rf frontend/node_modules || true
+            sudo rm -rf frontend/node_modules || true
 
             # Build and start containers
             echo "🔨 Building and starting containers..."
