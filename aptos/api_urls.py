@@ -2,7 +2,15 @@
 URLs da API REST para a aplicação aptos
 """
 from django.urls import path, include
-from .views import health
+from .views import (
+    health,
+    upload_documento,
+    download_documento,
+    listar_documentos_inquilino,
+    api_login,
+    api_logout,
+    current_user,
+)
 from rest_framework.routers import DefaultRouter
 from . import views
 
@@ -10,9 +18,20 @@ from . import views
 router = DefaultRouter()
 router.register(r'aptos', views.AptosViewSet, basename='aptos')
 router.register(r'builders', views.BuildersViewSet, basename='builders')
+router.register(r'inquilinos', views.InquilinoViewSet, basename='inquilinos')
+router.register(r'status', views.StatusViewSet, basename='status')
+router.register(r'associacoes', views.AssociacaoViewSet, basename='associacoes')
 
 urlpatterns = [
     # API endpoints via router
     path('', include(router.urls)),
     path('health/', health, name='health'),
+    path('auth/login/', api_login, name='api_login'),
+    path('auth/logout/', api_logout, name='api_logout'),
+    path('auth/me/', current_user, name='current_user'),
+
+    # APIs de upload e gestão de documentos
+    path('inquilinos/<int:inquilino_id>/upload-documento/', upload_documento, name='upload_documento'),
+    path('documentos/<int:documento_id>/download/', download_documento, name='download_documento'),
+    path('inquilinos/<int:inquilino_id>/documentos/', listar_documentos_inquilino, name='listar_documentos_inquilino'),
 ]

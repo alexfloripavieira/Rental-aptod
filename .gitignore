@@ -48,3 +48,4 @@ logs/
 haproxy/active_*
 CLAUDE.md
 rental-apto.pem
+tasks/prd-gestao-inquilinos

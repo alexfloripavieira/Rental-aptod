@@ -128,4 +128,5 @@ export const PageSkeleton: React.FC = () => {
   );
 };
 
+export { Loading };
 export default Loading;

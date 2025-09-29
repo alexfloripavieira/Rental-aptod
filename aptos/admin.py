@@ -1,6 +1,10 @@
 from django.contrib import admin
+from django.db import models
 
-from .models import Aptos, BuilderFoto, Builders, Foto
+from .models import (
+    Aptos, BuilderFoto, Builders, Foto,
+    Inquilino, InquilinoApartamento, HistoricoStatus, DocumentoInquilino, HistoricoAssociacao
+)
 
 
 class BuilderFotoInline(admin.TabularInline):
@@ -320,3 +324,435 @@ class AptosAdmin(admin.ModelAdmin):
 
 admin.site.register(Builders, BuildersAdmin)
 admin.site.register(Aptos, AptosAdmin)
+
+
+# ===== CONFIGURAÇÃO ADMIN PARA INQUILINOS =====
+
+class DocumentoInquilinoInline(admin.TabularInline):
+    model = DocumentoInquilino
+    extra = 1
+    max_num = 10
+    fields = ('tipo_documento', 'arquivo', 'versao', 'ativo', 'uploaded_at', 'uploaded_by')
+    readonly_fields = ('uploaded_at', 'uploaded_by', 'versao')
+    
+    def save_model(self, request, obj, form, change):
+        if not change:  # Se é um novo documento
+            obj.uploaded_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+class HistoricoStatusInline(admin.TabularInline):
+    model = HistoricoStatus
+    extra = 0
+    max_num = 20
+    fields = ('status_anterior', 'status_novo', 'motivo', 'usuario', 'timestamp')
+    readonly_fields = ('timestamp', 'usuario')
+    ordering = ['-timestamp']
+
+    def has_add_permission(self, request, obj=None):
+        return False  # Histórico é criado automaticamente
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # Não permitir deletar histórico
+
+
+class InquilinoApartamentoInline(admin.TabularInline):
+    model = InquilinoApartamento
+    extra = 1
+    max_num = 10
+    fields = ('apartamento', 'data_inicio', 'data_fim', 'ativo', 'observacoes')
+    readonly_fields = ('created_at', 'updated_at')
+
+
+class InquilinoAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'nome_principal',
+        'tipo',
+        'identificacao',
+        'email',
+        'telefone',
+        'status',
+        'apartamentos_ativos_count',
+        'created_at',
+    )
+
+    list_filter = (
+        'tipo',
+        'status',
+        'created_at',
+        'updated_at',
+    )
+
+    search_fields = (
+        'nome_completo',
+        'razao_social',
+        'cpf',
+        'cnpj',
+        'email',
+        'telefone',
+    )
+
+    readonly_fields = ('created_at', 'updated_at', 'apartamentos_ativos_display')
+    inlines = [InquilinoApartamentoInline, DocumentoInquilinoInline, HistoricoStatusInline]
+    list_per_page = 25
+
+    def get_queryset(self, request):
+        from django.db.models import Count, Prefetch
+        return super().get_queryset(request).prefetch_related(
+            Prefetch('apartamentos', queryset=Aptos.objects.only('id', 'unit_number')),
+            'documentos',
+            'historico_status'
+        ).annotate(
+            apartamentos_ativos_count=Count('inquilinoapartamento',
+                filter=models.Q(inquilinoapartamento__ativo=True))
+        )
+
+    def apartamentos_ativos_count(self, obj):
+        """Contador de apartamentos ativos"""
+        return getattr(obj, 'apartamentos_ativos_count', 0)
+    apartamentos_ativos_count.short_description = "Apartamentos Ativos"
+    apartamentos_ativos_count.admin_order_field = 'apartamentos_ativos_count'
+
+    def apartamentos_ativos_display(self, obj):
+        """Display dos apartamentos ativos"""
+        apartamentos = obj.get_apartamentos_ativos()
+        if not apartamentos:
+            return "Nenhum apartamento ativo"
+
+        from django.utils.html import format_html
+        apartamentos_list = ', '.join([apt.unit_number for apt in apartamentos])
+        return format_html('<strong>{}</strong>', apartamentos_list)
+    apartamentos_ativos_display.short_description = "Apartamentos Ativos"
+
+    def save_model(self, request, obj, form, change):
+        # Registrar mudança de status no histórico
+        if change and 'status' in form.changed_data:
+            original = Inquilino.objects.get(pk=obj.pk)
+            HistoricoStatus.objects.create(
+                inquilino=obj,
+                status_anterior=original.status,
+                status_novo=obj.status,
+                motivo=f"Alterado via admin por {request.user.username}",
+                usuario=request.user
+            )
+        super().save_model(request, obj, form, change)
+
+    fieldsets = (
+        ('Tipo de Pessoa', {
+            'fields': ('tipo',)
+        }),
+        ('Dados Pessoa Física', {
+            'fields': (
+                'nome_completo',
+                'cpf',
+                'rg',
+                'data_nascimento',
+                ('estado_civil', 'profissao'),
+                'renda'
+            ),
+            'classes': ('collapse',),
+            'description': 'Preencher apenas para Pessoa Física'
+        }),
+        ('Dados Pessoa Jurídica', {
+            'fields': (
+                'razao_social',
+                'nome_fantasia',
+                'cnpj',
+                'inscricao_estadual',
+                'responsavel_legal'
+            ),
+            'classes': ('collapse',),
+            'description': 'Preencher apenas para Pessoa Jurídica'
+        }),
+        ('Contato', {
+            'fields': (
+                'email',
+                'telefone',
+                'endereco_completo'
+            )
+        }),
+        ('Status e Observações', {
+            'fields': (
+                'status',
+                'observacoes'
+            )
+        }),
+        ('Apartamentos', {
+            'fields': ('apartamentos_ativos_display',),
+            'classes': ('collapse',)
+        }),
+        ('Auditoria', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
+
+    def changelist_view(self, request, extra_context=None):
+        """Adicionar estatísticas à view de lista"""
+        extra_context = extra_context or {}
+        if request.user.has_perm('aptos.view_inquilino'):
+            qs = self.get_queryset(request)
+            extra_context.update({
+                'total_inquilinos': qs.count(),
+                'inquilinos_ativos': qs.filter(status='ATIVO').count(),
+                'inquilinos_pf': qs.filter(tipo='PF').count(),
+                'inquilinos_pj': qs.filter(tipo='PJ').count(),
+                'inquilinos_com_apartamentos': qs.filter(apartamentos_ativos_count__gt=0).count(),
+            })
+        return super().changelist_view(request, extra_context)
+
+
+class HistoricoAssociacaoInline(admin.TabularInline):
+    """Inline para histórico de associações"""
+    model = HistoricoAssociacao
+    extra = 0
+    readonly_fields = ['acao', 'detalhes', 'observacoes', 'usuario', 'timestamp']
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+class InquilinoApartamentoAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'inquilino',
+        'apartamento',
+        'data_inicio',
+        'data_fim',
+        'valor_aluguel',
+        'ativo',
+        'esta_ativo',
+        'duracao_meses',
+        'created_by',
+        'created_at'
+    )
+
+    list_filter = (
+        'ativo',
+        'data_inicio',
+        'data_fim',
+        'apartamento__building_name',
+        'created_by',
+        'created_at'
+    )
+
+    search_fields = (
+        'inquilino__nome_completo',
+        'inquilino__razao_social',
+        'inquilino__cpf',
+        'inquilino__cnpj',
+        'apartamento__unit_number',
+        'apartamento__building_name__name'
+    )
+
+    readonly_fields = ('created_at', 'updated_at', 'duracao_dias', 'duracao_meses', 'esta_ativo')
+    list_select_related = ['inquilino', 'apartamento', 'apartamento__building_name', 'created_by', 'updated_by']
+    date_hierarchy = 'data_inicio'
+    inlines = [HistoricoAssociacaoInline]
+
+    fieldsets = (
+        ('Associação', {
+            'fields': ('inquilino', 'apartamento')
+        }),
+        ('Período', {
+            'fields': (
+                'data_inicio',
+                'data_fim',
+                'ativo',
+                'esta_ativo',
+                'duracao_dias',
+                'duracao_meses'
+            )
+        }),
+        ('Informações Financeiras', {
+            'fields': ('valor_aluguel',),
+            'classes': ('collapse',)
+        }),
+        ('Observações', {
+            'fields': ('observacoes',),
+            'classes': ('collapse',)
+        }),
+        ('Auditoria', {
+            'fields': ('created_by', 'updated_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
+
+    actions = ['finalizar_associacoes_selecionadas']
+
+    def finalizar_associacoes_selecionadas(self, request, queryset):
+        """Ação para finalizar múltiplas associações"""
+        count = 0
+        for associacao in queryset.filter(ativo=True):
+            associacao.finalizar_associacao(user=request.user)
+            count += 1
+        
+        self.message_user(request, f'{count} associações finalizadas com sucesso.')
+    
+    finalizar_associacoes_selecionadas.short_description = "Finalizar associações selecionadas"
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Se é uma nova associação
+            obj.created_by = request.user
+        else:
+            obj.updated_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+class HistoricoStatusAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'inquilino',
+        'status_anterior',
+        'status_novo',
+        'usuario',
+        'timestamp'
+    )
+
+    list_filter = (
+        'status_anterior',
+        'status_novo',
+        'timestamp',
+        'usuario'
+    )
+
+    search_fields = (
+        'inquilino__nome_completo',
+        'inquilino__razao_social',
+        'inquilino__cpf',
+        'inquilino__cnpj',
+        'motivo'
+    )
+
+    readonly_fields = ('timestamp',)
+    list_select_related = ['inquilino', 'usuario']
+    date_hierarchy = 'timestamp'
+
+    def has_add_permission(self, request):
+        return False  # Histórico é criado automaticamente
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # Não permitir deletar histórico
+
+
+class DocumentoInquilinoAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'inquilino',
+        'tipo_documento',
+        'versao',
+        'nome_original',
+        'get_tamanho_formatado',
+        'ativo',
+        'uploaded_at',
+        'uploaded_by'
+    )
+
+    list_filter = (
+        'tipo_documento',
+        'ativo',
+        'versao',
+        'uploaded_at',
+        'uploaded_by'
+    )
+
+    search_fields = (
+        'inquilino__nome_completo',
+        'inquilino__razao_social',
+        'inquilino__cpf',
+        'inquilino__cnpj',
+        'nome_original',
+        'tipo_documento'
+    )
+
+    readonly_fields = ('uploaded_at', 'uploaded_by', 'tamanho', 'mime_type', 'nome_original')
+    list_select_related = ['inquilino', 'uploaded_by']
+    date_hierarchy = 'uploaded_at'
+    list_editable = ['ativo']
+    
+    fieldsets = (
+        ('Informações do Documento', {
+            'fields': ('inquilino', 'tipo_documento', 'arquivo', 'versao')
+        }),
+        ('Metadados', {
+            'fields': ('nome_original', 'tamanho', 'mime_type', 'ativo'),
+            'classes': ('collapse',)
+        }),
+        ('Auditoria', {
+            'fields': ('uploaded_at', 'uploaded_by'),
+            'classes': ('collapse',)
+        })
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Se é um novo documento
+            obj.uploaded_by = request.user
+        super().save_model(request, obj, form, change)
+    
+    def get_tamanho_formatado(self, obj):
+        return obj.get_tamanho_formatado()
+    get_tamanho_formatado.short_description = 'Tamanho'
+
+
+
+
+class HistoricoAssociacaoAdmin(admin.ModelAdmin):
+    """Admin para histórico de associações"""
+    list_display = (
+        'id',
+        'associacao',
+        'acao',
+        'usuario',
+        'timestamp'
+    )
+
+    list_filter = (
+        'acao',
+        'timestamp',
+        'usuario'
+    )
+
+    search_fields = (
+        'associacao__inquilino__nome_completo',
+        'associacao__inquilino__razao_social',
+        'associacao__apartamento__unit_number',
+        'associacao__apartamento__building_name__name'
+    )
+
+    readonly_fields = ('timestamp',)
+    list_select_related = [
+        'associacao',
+        'associacao__inquilino',
+        'associacao__apartamento',
+        'associacao__apartamento__building_name',
+        'usuario'
+    ]
+    date_hierarchy = 'timestamp'
+
+    fieldsets = (
+        ('Informações da Ação', {
+            'fields': ('associacao', 'acao', 'usuario', 'timestamp')
+        }),
+        ('Detalhes', {
+            'fields': ('detalhes', 'observacoes'),
+            'classes': ('collapse',)
+        })
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+# Registrar os modelos no admin
+admin.site.register(Inquilino, InquilinoAdmin)
+admin.site.register(InquilinoApartamento, InquilinoApartamentoAdmin)
+admin.site.register(HistoricoStatus, HistoricoStatusAdmin)
+admin.site.register(DocumentoInquilino, DocumentoInquilinoAdmin)
+admin.site.register(HistoricoAssociacao, HistoricoAssociacaoAdmin)

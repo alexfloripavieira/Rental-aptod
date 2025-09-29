@@ -66,6 +66,7 @@ export interface ApartmentFilters {
   has_air_conditioning?: boolean;
   search?: string;
   page?: number;
+  page_size?: number;
   ordering?: string;
   min_price?: number;
   max_price?: number;
