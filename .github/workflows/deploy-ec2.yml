@@ -56,6 +56,11 @@ jobs:
             git fetch --all
             git checkout "$branch"
             git reset --hard "origin/$branch"
+            # Clean up disk space first
+            docker system prune -af --volumes || true
+            docker builder prune -af || true
+            # Clean old node_modules that may be taking space
+            rm -rf frontend/node_modules || true
             # Ensure clean restart
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production down || true
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
