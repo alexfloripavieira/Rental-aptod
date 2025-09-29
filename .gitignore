@@ -40,6 +40,9 @@ logs/
 
 ### Docker
 *.pid
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
 
 ### Project specific (internal tooling)
 .serena/
