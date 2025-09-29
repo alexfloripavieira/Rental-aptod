@@ -31,17 +31,6 @@ up-prod: ## Start production-like stack (Nginx + Django). Requires built fronten
 build-frontend: ## Build frontend (Vite)
 	cd frontend && npm ci && npm run build
 
-build-frontend-prod: ## Build frontend and copy to production locations
-	# Clean up any existing node_modules with permission issues
-	sudo rm -rf frontend/node_modules || true
-	# Build using Docker to avoid permission issues
-	docker run --rm -v $(PWD)/frontend:/app -w /app node:20-alpine sh -c "npm ci && npm run build"
-	# Copy built files to Django locations
-	cp frontend/dist/index.html app/templates/
-	mkdir -p static/assets static
-	cp -r frontend/dist/assets/* static/assets/ 2>/dev/null || true
-	cp frontend/public/* static/ 2>/dev/null || true
-
 migrate: ## Apply Django migrations
 	$(COMPOSE_CMD) exec backend python manage.py migrate --noinput
 

@@ -56,14 +56,6 @@ jobs:
             git fetch --all
             git checkout "$branch"
             git reset --hard "origin/$branch"
-            # Clean and rebuild everything
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production down || true
-            docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm frontend npm run build
-            # Copy built files to the correct locations
-            docker compose -f docker-compose.yml -f docker-compose.dev.yml cp frontend:/app/dist/index.html ./app/templates/
-            docker compose -f docker-compose.yml -f docker-compose.dev.yml cp frontend:/app/dist/assets ./static/
-            docker compose -f docker-compose.yml -f docker-compose.dev.yml cp frontend:/app/public/ ./static/
-            # Start production services
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
         env:
           REMOTE_BRANCH: ${{ github.ref_name }}
