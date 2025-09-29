@@ -40,3 +40,7 @@ urlpatterns = [
 
 # Media serving (filesystem) with Range support
 urlpatterns += [path('media/<path:path>', serve_media, name='media')]
+
+# Static files serving in development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
