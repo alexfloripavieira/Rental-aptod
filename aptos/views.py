@@ -69,11 +69,20 @@ def api_login(request):
     })
 
 
+@csrf_exempt
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def api_logout(request):
     logout(request)
     return Response({'success': True})
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def api_logout_get(request):
+    """Logout via GET - sem CSRF para facilitar debug"""
+    logout(request)
+    return Response({'success': True, 'method': 'GET'})
 
 
 @api_view(['GET'])

@@ -48,22 +48,64 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          timeout: 300s
           envs: REMOTE_BRANCH
           script: |
             set -euo pipefail
+            echo "🚀 Starting deployment..."
+
+            # Set branch
             branch="${REMOTE_BRANCH:-main}"
-            cd ~/Rental-aptod
+            echo "📦 Deploying branch: $branch"
+
+            # Navigate to project directory
+            cd ~/Rental-aptod || { echo "❌ Directory ~/Rental-aptod not found"; exit 1; }
+
+            # Check if .env exists
+            if [ ! -f .env ]; then
+              echo "❌ .env file not found in ~/Rental-aptod/"
+              echo "Please create .env file with required environment variables"
+              exit 1
+            fi
+
+            echo "🔄 Updating code..."
             git fetch --all
             git checkout "$branch"
             git reset --hard "origin/$branch"
-            # Clean up disk space first
-            docker system prune -af --volumes || true
-            docker builder prune -af || true
-            # Clean old node_modules that may be taking space
-            rm -rf frontend/node_modules || true
-            # Ensure clean restart
+
+            # Stop containers gracefully
+            echo "🛑 Stopping containers..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production down || true
+
+            # Clean up to free disk space
+            echo "🧹 Cleaning up disk space..."
+            docker system prune -f --volumes || true
+            docker builder prune -f || true
+            rm -rf frontend/node_modules || true
+
+            # Build and start containers
+            echo "🔨 Building and starting containers..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
+
+            # Wait for services to be ready
+            echo "⏳ Waiting for services to start..."
+            sleep 30
+
+            # Check if containers are running
+            echo "🔍 Checking container status..."
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production ps
+
+            # Test if backend is responding
+            echo "🩺 Testing backend health..."
+            if curl -f http://localhost:8000/api/v1/health/ &>/dev/null; then
+              echo "✅ Backend is healthy"
+            else
+              echo "⚠️ Backend health check failed, checking logs..."
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production logs backend --tail 20
+            fi
+
+            echo "🎉 Deployment completed!"
         env:
           REMOTE_BRANCH: ${{ github.ref_name }}
 

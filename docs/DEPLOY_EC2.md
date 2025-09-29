@@ -1,6 +1,15 @@
-# Deploy no AWS EC2
+# 🚀 Deploy no AWS EC2 - Rental-aptod
 
-Guia atualizado para executar o Aptos em uma instância EC2 usando Docker Compose e entregar deploy contínuo via GitHub Actions compilando diretamente na própria máquina EC2.
+Guia completo e atualizado para deploy da aplicação Rental-aptod em AWS EC2 com GitHub Actions automático.
+
+## 📊 Informações da sua Instância EC2
+
+**Baseado na imagem fornecida:**
+- **Instância ID**: i-08a95e82e51480be0
+- **IP Público**: 3.90.232.140
+- **Estado**: Executando
+- **Tipo**: t2.micro
+- **DNS Público**: ec2-3-90-232-140.compute-1.amazonaws.com
 
 ## 1. Preparação da instância
 

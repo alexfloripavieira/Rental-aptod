@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '../common/ThemeToggle';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -9,10 +9,18 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout, authLoading } = useAuth();
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path);
+  };
+
+  const handleInquilinosClick = (e: React.MouseEvent) => {
+    if (!user?.isSuperuser) {
+      e.preventDefault();
+      navigate('/inquilinos');
+    }
   };
 
   return (
@@ -55,18 +63,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 Empreendimentos
               </Link>
-              {user?.isSuperuser && (
-                <Link
-                  to="/inquilinos"
-                  className={`${
-                    isActive('/inquilinos')
-                      ? 'text-primary-600 border-primary-600'
-                      : 'text-gray-500 hover:text-gray-700 border-transparent hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200'
-                  } px-1 py-4 border-b-2 text-sm font-medium transition-colors duration-200`}
-                >
-                  Inquilinos
-                </Link>
-              )}
+              <Link
+                to="/inquilinos"
+                onClick={handleInquilinosClick}
+                className={`${
+                  isActive('/inquilinos')
+                    ? 'text-primary-600 border-primary-600'
+                    : user?.isSuperuser
+                      ? 'text-gray-500 hover:text-gray-700 border-transparent hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200'
+                      : 'text-gray-400 border-transparent cursor-pointer hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400'
+                } px-1 py-4 border-b-2 text-sm font-medium transition-colors duration-200`}
+              >
+                Inquilinos
+                {!user?.isSuperuser && (
+                  <span className="ml-1 text-xs">🔒</span>
+                )}
+              </Link>
             </nav>
 
             {/* Right side */}
@@ -119,26 +131,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               Empreendimentos
             </Link>
+            <Link
+              to="/inquilinos"
+              onClick={handleInquilinosClick}
+              className={`${
+                isActive('/inquilinos')
+                  ? 'bg-primary-50 border-primary-500 text-primary-700'
+                  : user?.isSuperuser
+                    ? 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-100'
+                    : 'border-transparent text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400'
+              } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+            >
+              Inquilinos
+              {!user?.isSuperuser && (
+                <span className="ml-1 text-xs">🔒</span>
+              )}
+            </Link>
             {user?.isSuperuser && (
-              <>
-                <Link
-                  to="/inquilinos"
-                  className={`${
-                    isActive('/inquilinos')
-                      ? 'bg-primary-50 border-primary-500 text-primary-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-100'
-                  } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
-                >
-                  Inquilinos
-                </Link>
-                <button
-                  onClick={logout}
-                  disabled={authLoading}
-                  className="w-full text-left block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-100"
-                >
-                  {authLoading ? 'Saindo...' : `Sair (${user.username})`}
-                </button>
-              </>
+              <button
+                onClick={logout}
+                disabled={authLoading}
+                className="w-full text-left block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-300 dark:hover:text-gray-100"
+              >
+                {authLoading ? 'Saindo...' : `Sair (${user.username})`}
+              </button>
             )}
           </div>
         </div>
@@ -184,13 +200,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
                 </li>
                 <li>
-                  {user?.isSuperuser ? (
-                    <Link to="/inquilinos" className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                      Inquilinos
-                    </Link>
-                  ) : (
-                    <span className="text-gray-400 dark:text-gray-600">Inquilinos (restrito)</span>
-                  )}
+                  <Link
+                    to="/inquilinos"
+                    onClick={handleInquilinosClick}
+                    className={`transition-colors ${
+                      user?.isSuperuser
+                        ? 'text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400'
+                        : 'text-gray-400 dark:text-gray-600 cursor-pointer hover:text-gray-500 dark:hover:text-gray-500'
+                    }`}
+                  >
+                    Inquilinos {!user?.isSuperuser && '🔒'}
+                  </Link>
                 </li>
               </ul>
             </div>

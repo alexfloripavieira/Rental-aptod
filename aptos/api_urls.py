@@ -9,6 +9,7 @@ from .views import (
     listar_documentos_inquilino,
     api_login,
     api_logout,
+    api_logout_get,
     current_user,
 )
 from rest_framework.routers import DefaultRouter
@@ -28,6 +29,7 @@ urlpatterns = [
     path('health/', health, name='health'),
     path('auth/login/', api_login, name='api_login'),
     path('auth/logout/', api_logout, name='api_logout'),
+    path('auth/logout-alt/', api_logout_get, name='api_logout_get'),
     path('auth/me/', current_user, name='current_user'),
 
     # APIs de upload e gestão de documentos

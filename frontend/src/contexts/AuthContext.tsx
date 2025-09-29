@@ -48,7 +48,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchCurrentUser();
-  }, [fetchCurrentUser]);
+
+    // Verificar sessão a cada 30 segundos para detectar logout via admin
+    const interval = setInterval(() => {
+      if (!loading) {
+        fetchCurrentUser();
+      }
+    }, 30000);
+
+    // Verificar sessão quando a tab/janela ganha foco
+    const handleFocus = () => {
+      if (!loading) {
+        fetchCurrentUser();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !loading) {
+        fetchCurrentUser();
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [fetchCurrentUser, loading]);
 
   const login = useCallback(async (username: string, password: string) => {
     setAuthLoading(true);
@@ -69,12 +95,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     setAuthLoading(true);
     try {
+      console.log('🚪 Iniciando logout...');
       await authService.logout();
+      console.log('✅ Logout realizado com sucesso');
+      setUser(null);
+    } catch (error) {
+      console.error('❌ Erro no logout:', error);
+      // Mesmo com erro, vamos limpar o estado local
       setUser(null);
     } finally {
       setAuthLoading(false);
+      // Forçar atualização do estado do usuário após logout
+      setTimeout(() => {
+        fetchCurrentUser();
+      }, 100);
     }
-  }, []);
+  }, [fetchCurrentUser]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
