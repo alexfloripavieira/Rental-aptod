@@ -72,7 +72,7 @@ const BuilderDetailPage: React.FC = () => {
           <div className="media-hero m-4">
             <VideoWithPoster
               src={apiClient.getMediaUrl(builder.video)}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-lg"
               controls
               preload="metadata"
               poster={coverPhoto}

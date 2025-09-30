@@ -75,10 +75,10 @@ const ApartmentDetailPage: React.FC = () => {
       <div className="mt-4 card overflow-hidden">
         {/* Hero (vídeo ou capa) */}
         {apartment.video ? (
-          <div className="media-hero m-4 rounded-lg">
+          <div className="media-hero m-4">
             <VideoWithPoster
               src={apiClient.getMediaUrl(apartment.video)}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-lg"
               controls
               preload="metadata"
               poster={coverUrl}

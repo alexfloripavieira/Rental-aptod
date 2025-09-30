@@ -219,8 +219,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Contato</h3>
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                <p>📧 contato@aptos.com</p>
-                <p>📱 (48) 9999-9999</p>
+                <p>📧 alexsandervieira1974@gmail.com</p>
+                <p>📱 (48) 999711474</p>
                 <p>📍 Florianópolis, SC</p>
               </div>
             </div>
@@ -228,7 +228,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
             <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-              © {new Date().getFullYear()} Aptos. Todos os direitos reservados.
+              © {new Date().getFullYear()} Seu Aluguel Fácil. Todos os direitos reservados.
             </p>
           </div>
         </div>
