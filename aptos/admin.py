@@ -75,9 +75,12 @@ class BuildersAdmin(admin.ModelAdmin):
     
     def photo_preview(self, obj):
         """Preview das fotos no admin com loading lazy"""
-        if not obj or not hasattr(obj, 'builder_fotos'):
+        if not obj or not obj.pk:
+            return "Salve primeiro para ver fotos"
+
+        if not hasattr(obj, 'builder_fotos'):
             return "Sem fotos"
-            
+
         fotos = obj.builder_fotos.all()[:3]  # Limita a 3 fotos
         if not fotos:
             return "Sem fotos"
@@ -104,12 +107,15 @@ class BuildersAdmin(admin.ModelAdmin):
         
         return mark_safe(photos_html)
     photo_preview.short_description = "Preview Fotos"
-    
+
     def video_preview(self, obj):
         """Preview do vídeo no admin"""
-        if not obj or not obj.video:
+        if not obj or not obj.pk:
+            return "Salve primeiro para ver vídeo"
+
+        if not obj.video:
             return "Sem vídeo"
-            
+
         from django.utils.html import format_html
         return format_html(
             '<video width="200" height="120" controls preload="none" '
@@ -120,7 +126,7 @@ class BuildersAdmin(admin.ModelAdmin):
             obj.video.url
         )
     video_preview.short_description = "Preview Vídeo"
-    
+
     def changelist_view(self, request, extra_context=None):
         """Add statistics to changelist view"""
         extra_context = extra_context or {}
@@ -231,12 +237,15 @@ class AptosAdmin(admin.ModelAdmin):
     photo_count.admin_order_field = 'photo_count'
     
     # Previews are always readonly; no need for conditional override
-    
+
     def photo_preview(self, obj):
         """Preview das fotos no admin com loading lazy"""
-        if not obj or not hasattr(obj, 'fotos'):
+        if not obj or not obj.pk:
+            return "Salve primeiro para ver fotos"
+
+        if not hasattr(obj, 'fotos'):
             return "Sem fotos"
-            
+
         fotos = obj.fotos.all()[:3]  # Limita a 3 fotos
         if not fotos:
             return "Sem fotos"
@@ -263,12 +272,15 @@ class AptosAdmin(admin.ModelAdmin):
         
         return mark_safe(photos_html)
     photo_preview.short_description = "Preview Fotos"
-    
+
     def video_preview(self, obj):
         """Preview do vídeo no admin"""
-        if not obj or not obj.video:
+        if not obj or not obj.pk:
+            return "Salve primeiro para ver vídeo"
+
+        if not obj.video:
             return "Sem vídeo"
-            
+
         from django.utils.html import format_html
         return format_html(
             '<video width="200" height="120" controls preload="none" '
@@ -279,7 +291,7 @@ class AptosAdmin(admin.ModelAdmin):
             obj.video.url
         )
     video_preview.short_description = "Preview Vídeo"
-    
+
     def changelist_view(self, request, extra_context=None):
         """Add statistics to changelist view"""
         extra_context = extra_context or {}
