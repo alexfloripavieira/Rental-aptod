@@ -37,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
-                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Aptos</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Seu Aluguel Fácil</span>
               </Link>
             </div>
 
@@ -177,7 +177,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
-                <span className="font-semibold text-gray-900">Aptos</span>
+                <span className="font-semibold text-gray-900">Seu Aluguel Fácil</span>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
                 Sistema de gerenciamento de aluguel de apartamentos.
