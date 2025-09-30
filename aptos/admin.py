@@ -406,8 +406,8 @@ class InquilinoAdmin(admin.ModelAdmin):
             'documentos',
             'historico_status'
         ).annotate(
-            apartamentos_ativos_count=Count('inquilinoapartamento',
-                filter=models.Q(inquilinoapartamento__ativo=True))
+            apartamentos_ativos_count=Count('associacoes_apartamento',
+                filter=models.Q(associacoes_apartamento__ativo=True))
         )
 
     def apartamentos_ativos_count(self, obj):
