@@ -35,6 +35,36 @@ else:
     print("[start] Superuser env vars not set; skipping.")
 PY
 
+echo "[start] Synchronizing frontend bundle..."
+if [ -d "/app/frontend_dist" ]; then
+    python - <<'PY'
+import shutil
+from pathlib import Path
+
+assets_src = Path('/app/frontend_dist/assets')
+index_src = Path('/app/frontend_dist/index.html')
+assets_dst = Path('/app/static/assets')
+template_dst = Path('/app/app/templates/index.html')
+
+assets_dst.parent.mkdir(parents=True, exist_ok=True)
+
+if assets_src.exists():
+    if assets_dst.exists():
+        shutil.rmtree(assets_dst)
+    shutil.copytree(assets_src, assets_dst)
+else:
+    print('[start] Aviso: /app/frontend_dist/assets não encontrado.')
+
+if index_src.exists():
+    template_dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(index_src, template_dst)
+else:
+    print('[start] Aviso: /app/frontend_dist/index.html não encontrado.')
+PY
+else
+    echo "[start] Frontend dist não encontrado; pulando sincronização."
+fi
+
 echo "[start] Collecting static files..."
 python manage.py collectstatic --noinput
 

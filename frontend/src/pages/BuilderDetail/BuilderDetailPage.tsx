@@ -69,7 +69,7 @@ const BuilderDetailPage: React.FC = () => {
 
       <div className="card overflow-hidden">
         {builder.video ? (
-          <div className="media-hero">
+          <div className="media-hero m-4">
             <VideoWithPoster
               src={apiClient.getMediaUrl(builder.video)}
               className="w-full h-full object-cover"

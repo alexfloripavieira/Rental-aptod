@@ -74,9 +74,8 @@ COPY --chown=appuser:appgroup . .
 # Garantir permissão de execução do script de start
 RUN chmod +x scripts/start_railway.sh || true
 
-# Copiar build do frontend para o Django
-COPY --from=frontend-builder --chown=appuser:appgroup /app/frontend/dist/assets /app/static/assets
-COPY --from=frontend-builder --chown=appuser:appgroup /app/frontend/dist/index.html /app/app/templates/index.html
+# Copiar build do frontend para staging (será sincronizado no start)
+COPY --from=frontend-builder --chown=appuser:appgroup /app/frontend/dist /app/frontend_dist
 
 # Criar diretórios necessários para media
 RUN mkdir -p /app/media/aptos/aptos_videos \
