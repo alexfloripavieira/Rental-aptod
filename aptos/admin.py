@@ -159,11 +159,6 @@ class BuildersAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
-    
-    class Media:
-        css = {
-            'all': ('admin/css/custom_admin.css',)
-        }
 
 
 class FotoInline(admin.TabularInline):
@@ -328,11 +323,6 @@ class AptosAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
-    
-    class Media:
-        css = {
-            'all': ('admin/css/custom_admin.css',)
-        }
 
 admin.site.register(Builders, BuildersAdmin)
 admin.site.register(Aptos, AptosAdmin)
