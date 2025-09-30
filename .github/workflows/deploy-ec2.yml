@@ -42,6 +42,10 @@ jobs:
           npm install
           npm run build
 
+      - name: Validate built frontend assets
+        run: |
+          node scripts/validate-dist-assets.js
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -120,6 +124,26 @@ jobs:
               echo "⚠️ Backend health check failed, checking logs..."
               docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production logs backend --tail 20
             fi
+
+            echo "🔎 Validating served frontend assets..."
+            ASSETS=$(docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T backend sh -lc "grep -oE '/static/assets/[A-Za-z0-9._-]+\\.(js|css)' app/templates/index.html | sort -u")
+            if [ -z "$ASSETS" ]; then
+              echo "❌ Não foi possível extrair assets do index.html" >&2
+              exit 1
+            fi
+            ok=1
+            while IFS= read -r asset; do
+              echo " - testando: http://localhost$asset"
+              if ! curl -fsS "http://localhost$asset" >/dev/null; then
+                echo "❌ Falhou: $asset"
+                ok=0
+              fi
+            done <<< "$ASSETS"
+            if [ "$ok" -ne 1 ]; then
+              echo "❌ Validação de assets falhou"
+              exit 1
+            fi
+            echo "✅ Assets do frontend servidos com sucesso"
 
             echo "🎉 Deployment completed!"
         env:
