@@ -46,7 +46,6 @@ nginx/ssl/*.crt
 
 ### Project specific (internal tooling)
 .serena/
-.claude/
 .mcp.json
 haproxy/active_*
 CLAUDE.md
