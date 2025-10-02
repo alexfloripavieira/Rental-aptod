@@ -54,7 +54,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           timeout: 45m
-          envs: REMOTE_BRANCH
+          envs: REMOTE_BRANCH,CERTBOT_EMAIL
           script: |
             set -euo pipefail
             echo "🚀 Starting deployment..."
@@ -161,3 +161,18 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             docker image prune -af || true  
+            # (Optional) Issue/renew Let's Encrypt certificates if email provided
+            if [ -n "${CERTBOT_EMAIL:-}" ]; then
+              echo "🔐 Ensuring Let's Encrypt certificates..."
+              docker run --rm \
+                -v rental-aptod_certbot_webroot:/var/www/certbot \
+                -v rental-aptod_ssl_certs_volume:/etc/letsencrypt \
+                certbot/certbot certonly --webroot \
+                  -w /var/www/certbot \
+                  -d seualuguelfacil.com.br -d www.seualuguelfacil.com.br \
+                  --email "$CERTBOT_EMAIL" --agree-tos --non-interactive --keep-until-expiring || true
+              # Reload nginx to pick new certs (ignore failure if unchanged)
+              docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx nginx -s reload || true
+            else
+              echo "ℹ️ CERTBOT_EMAIL not set; skipping certificate issuance"
+            fi
