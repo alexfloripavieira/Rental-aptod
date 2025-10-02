@@ -27,7 +27,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const hasError = Boolean(fieldError);
 
     const selectClasses = `
-      block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 dark:text-gray-100
+      block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700
       shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600
       focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:focus:ring-blue-400 sm:text-sm sm:leading-6
       disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400

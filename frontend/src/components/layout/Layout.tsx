@@ -79,6 +79,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span className="ml-1 text-xs">🔒</span>
                 )}
               </Link>
+              {user?.isSuperuser && (
+                <Link
+                  to="/dashboard"
+                  className={`${
+                    isActive('/dashboard')
+                      ? 'text-primary-600 border-primary-600'
+                      : 'text-gray-500 hover:text-gray-700 border-transparent hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200'
+                  } px-1 py-4 border-b-2 text-sm font-medium transition-colors duration-200`}
+                >
+                  Dashboard
+                </Link>
+              )}
             </nav>
 
             {/* Right side */}

@@ -19,7 +19,7 @@ export function FormField({
     <div className="space-y-1">
       <label
         htmlFor={name}
-        className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+        className="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100"
       >
         {label}
         {required && (

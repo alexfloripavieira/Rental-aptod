@@ -140,10 +140,11 @@ export interface ValidationError {
 }
 
 export interface DocumentValidation {
-  isValid: boolean;
+  valid: boolean;
   formatted?: string;
   errors?: string[];
   exists?: boolean;
+  error?: string;
 }
 
 export interface DocumentoUpload {
@@ -197,3 +198,6 @@ export interface FinalizarAssociacaoInput {
   data_fim?: string;
   observacoes?: string;
 }
+
+// Ensure this file is treated as a module
+export {}

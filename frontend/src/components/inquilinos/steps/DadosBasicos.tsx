@@ -67,7 +67,7 @@ export function DadosBasicos() {
                   name="cpf"
                   placeholder="000.000.000-00"
                   mask="000.000.000-00"
-                  onChange={handleDocumentChange}
+                  onChange={(e: any) => handleDocumentChange(typeof e === 'string' ? e : e?.target?.value)}
                   loading={isValidating}
                 />
               </FormField>
@@ -163,7 +163,7 @@ export function DadosBasicos() {
                   name="cnpj"
                   placeholder="00.000.000/0000-00"
                   mask="00.000.000/0000-00"
-                  onChange={handleDocumentChange}
+                  onChange={(e: any) => handleDocumentChange(typeof e === 'string' ? e : e?.target?.value)}
                   loading={isValidating}
                 />
               </FormField>

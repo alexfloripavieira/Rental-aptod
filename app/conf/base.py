@@ -39,6 +39,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "aptos.middleware.PerformanceMonitoringMiddleware",
+    "aptos.middleware.CacheInvalidationMiddleware",
 ]
 
 ROOT_URLCONF = "app.urls"
@@ -95,6 +97,30 @@ def _default_database():
 
 
 DATABASES = {"default": _default_database()}
+
+# Cache ------------------------------------------------------------------
+REDIS_URL = env("REDIS_URL", "redis://localhost:6379/1")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 50,
+                "retry_on_timeout": True,
+            },
+        },
+        "KEY_PREFIX": "aptos",
+        "TIMEOUT": 300,  # 5 minutos padrão
+        "VERSION": 1,
+    }
+}
+
+# Cache de sessões no Redis
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 # Password validation ----------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -202,6 +228,10 @@ LOGGING = {
         "aptos": {
             "handlers": ["console"],
             "level": "INFO",
+        },
+        "performance": {
+            "handlers": ["console"],
+            "level": "WARNING",
         },
     },
 }

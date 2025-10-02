@@ -51,24 +51,31 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       const rawValue = event.target.value;
       const nextValue = handleMaskedInput(rawValue);
 
-      // Atualiza o estado do React Hook Form
+      // Atualiza o estado do React Hook Form com o valor já mascarado
       formOnChange(nextValue);
 
       // Propaga mudança para listeners externos (se houver)
       if (onChange) {
-        const syntheticEvent = {
-          ...event,
-          target: {
-            ...event.target,
-            value: nextValue,
-          },
-        } as React.ChangeEvent<HTMLInputElement>;
-        onChange(syntheticEvent);
+        try {
+          // Envia diretamente o valor (string) para handlers que esperam texto
+          // @ts-expect-error aceitar tanto string quanto evento
+          onChange(nextValue);
+        } catch {
+          // Fallback: envia o evento original com o valor atualizado
+          const syntheticEvent = {
+            ...event,
+            target: {
+              ...event.target,
+              value: nextValue,
+            },
+          } as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
+        }
       }
     };
 
     const inputClasses = `
-      block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 dark:text-gray-100
+      block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700
       shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500
       focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:focus:ring-blue-400 sm:text-sm sm:leading-6
       disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400
@@ -86,13 +93,20 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           value={value ?? ''}
           className={inputClasses}
           onChange={mask ? handleInputChange : (event) => {
-            formOnChange(event);
-            if (onChange) onChange(event);
+            const val = event.target.value;
+            formOnChange(val);
+            if (onChange) {
+              // @ts-expect-error aceitar tanto string quanto evento
+              onChange(val);
+            }
           }}
           onBlur={onBlur}
           disabled={loading || props.disabled}
           aria-invalid={hasError}
           aria-describedby={hasError ? `${name}-error` : undefined}
+          // Se possuir máscara, limitar o comprimento máximo ao tamanho da máscara
+          maxLength={mask ? mask.length : props.maxLength}
+          inputMode={mask ? 'numeric' : props.inputMode}
           ref={(element) => {
             ref(element);
             if (typeof forwardedRef === 'function') {

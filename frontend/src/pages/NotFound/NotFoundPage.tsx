@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const NotFoundPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
           {/* 404 Number */}
@@ -11,20 +11,20 @@ const NotFoundPage: React.FC = () => {
             404
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Página não encontrada
           </h1>
 
-          <p className="text-gray-600 mb-8">
+          <p className="text-gray-600 dark:text-gray-300 mb-8">
             Desculpe, a página que você está procurando não existe ou foi movida.
           </p>
         </div>
 
         {/* Illustration */}
         <div className="mb-8">
-          <div className="inline-flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-32 h-32 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
             <svg
-              className="w-16 h-16 text-gray-400"
+              className="w-16 h-16 text-gray-400 dark:text-gray-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

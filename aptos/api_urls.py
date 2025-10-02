@@ -7,6 +7,7 @@ from .views import (
     upload_documento,
     download_documento,
     listar_documentos_inquilino,
+    validar_documento,
     api_login,
     api_logout,
     api_logout_get,
@@ -22,11 +23,14 @@ router.register(r'builders', views.BuildersViewSet, basename='builders')
 router.register(r'inquilinos', views.InquilinoViewSet, basename='inquilinos')
 router.register(r'status', views.StatusViewSet, basename='status')
 router.register(r'associacoes', views.AssociacaoViewSet, basename='associacoes')
+router.register(r'relatorios', views.RelatorioViewSet, basename='relatorios')
 
 urlpatterns = [
     # API endpoints via router
     path('', include(router.urls)),
     path('health/', health, name='health'),
+    # Validação de documentos (para validação em tempo real no frontend)
+    path('validar-documento/', validar_documento, name='validar_documento'),
     path('auth/login/', api_login, name='api_login'),
     path('auth/logout/', api_logout, name='api_logout'),
     path('auth/logout-alt/', api_logout_get, name='api_logout_get'),

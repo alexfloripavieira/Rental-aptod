@@ -33,6 +33,8 @@ export function InquilinoList({
   onRetry
 }: InquilinoListProps) {
   const totalPages = Math.ceil(totalCount / pageSize);
+  const startIndex = (currentPage - 1) * pageSize + 1;
+  const endIndex = Math.min(currentPage * pageSize, totalCount);
 
   if (loading && inquilinos.length === 0) {
     return (
@@ -78,17 +80,32 @@ export function InquilinoList({
 
   return (
     <div className="space-y-6">
-      {/* Results info */}
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          Exibindo {inquilinos.length} de {totalCount} inquilinos
-        </p>
-        {loading && inquilinos.length > 0 && (
-          <div className="flex items-center space-x-2">
-            <Loading size="sm" />
-            <span className="text-sm text-gray-500 dark:text-gray-400">Carregando...</span>
+      {/* Results header */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+              Resultados da Busca
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {totalCount > 0 ? (
+                <>
+                  Exibindo {startIndex} a {endIndex} de{' '}
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{totalCount}</span>{' '}
+                  {totalCount === 1 ? 'inquilino' : 'inquilinos'}
+                </>
+              ) : (
+                'Nenhum inquilino encontrado'
+              )}
+            </p>
           </div>
-        )}
+          {loading && inquilinos.length > 0 && (
+            <div className="flex items-center space-x-2">
+              <Loading size="sm" />
+              <span className="text-sm text-gray-500 dark:text-gray-400">Atualizando...</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Grid of inquilino cards */}
@@ -106,11 +123,13 @@ export function InquilinoList({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center pt-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-6 py-4">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
+            showPageNumbers={true}
+            maxPageNumbers={7}
           />
         </div>
       )}

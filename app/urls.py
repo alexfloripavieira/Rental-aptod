@@ -26,6 +26,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # API REST endpoints
     path("api/v1/", include("aptos.api_urls")),
+    # Rotas auxiliares e utilitárias da app (incluem validações simples)
+    path("", include("aptos.urls")),
     # API Authentication (Django REST framework)
     path("api-auth/", include("rest_framework.urls")),
     # Documentação da API (drf-spectacular)

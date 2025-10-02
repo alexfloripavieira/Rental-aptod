@@ -50,3 +50,5 @@ nginx/ssl/*.crt
 haproxy/active_*
 CLAUDE.md
 rental-apto.pem
+**/__pycache__/
+*.pyc

@@ -21,6 +21,22 @@ services:
     networks:
       - aptos-network
 
+  ## Redis cache
+  redis:
+    image: redis:7-alpine
+    container_name: aptos-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aptos-network
+
   ## Django backend (produção por padrão)
   backend:
     build:
@@ -32,6 +48,8 @@ services:
     user: "0:0"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-app.conf.production}
@@ -51,6 +69,7 @@ services:
       DJANGO_SESSION_COOKIE_SAMESITE: ${DJANGO_SESSION_COOKIE_SAMESITE:-Lax}
       DJANGO_CORS_ALLOWED_ORIGINS: ${DJANGO_CORS_ALLOWED_ORIGINS:-}
       DJANGO_CORS_ALLOW_CREDENTIALS: ${DJANGO_CORS_ALLOW_CREDENTIALS:-True}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/1}
     volumes:
       - media_volume:/app/media
       - static_volume:/app/static
@@ -89,8 +108,10 @@ services:
 volumes:
   postgres_data:
     driver: local
+  redis_data:
+    driver: local
   media_volume:
-    driver: local  
+    driver: local
   static_volume:
     driver: local
   logs_volume:

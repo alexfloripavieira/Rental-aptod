@@ -30,21 +30,24 @@ export function InquilinoCard({ inquilino, onStatusChange, onEdit, onDelete }: I
     }
   };
 
+  const displayName = (inquilino as any).nome_principal || (inquilino as any).nome_exibicao || inquilino.nome_completo || inquilino.razao_social || '—';
+  const documento = inquilino.identificacao_formatada || inquilino.identificacao || (inquilino as any).documento || '';
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200">
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
               <Link
                 to={`/inquilinos/${inquilino.id}`}
                 className="hover:text-blue-600 transition-colors"
               >
-                {inquilino.nome_principal}
+                {displayName}
               </Link>
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               {inquilino.tipo === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}
             </p>
           </div>
@@ -60,9 +63,7 @@ export function InquilinoCard({ inquilino, onStatusChange, onEdit, onDelete }: I
             <span className="font-medium">
               {inquilino.tipo === 'PF' ? 'CPF:' : 'CNPJ:'}
             </span>
-            <span className="ml-2">
-              {inquilino.identificacao_formatada || inquilino.identificacao}
-            </span>
+            <span className="ml-2">{documento || '—'}</span>
           </p>
         </div>
 

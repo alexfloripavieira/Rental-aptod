@@ -30,9 +30,21 @@ class ApiClient {
   private setupInterceptors() {
     // Request interceptor
     this.client.interceptors.request.use(
-      (config) => {
+      async (config) => {
         if (import.meta.env.DEV) {
           console.warn(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        }
+        // Se for uma requisição de escrita e não houver csrftoken no cookie,
+        // faça uma chamada GET para criar o cookie (ex.: /auth/me/)
+        const method = (config.method || 'get').toLowerCase();
+        const needsCsrf = ['post', 'put', 'patch', 'delete'].includes(method);
+        const hasCsrf = typeof document !== 'undefined' && document.cookie.includes('csrftoken=');
+        if (needsCsrf && !hasCsrf) {
+          try {
+            await this.client.get('/auth/me/');
+          } catch (_) {
+            // se falhar, a requisição original pode retornar 401/403, tratado no interceptor de resposta
+          }
         }
         return config;
       },

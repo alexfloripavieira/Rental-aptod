@@ -9,8 +9,11 @@ import ApartmentDetailPage from './pages/ApartmentDetail/ApartmentDetailPage';
 import InquilinosListPage from './pages/InquilinosList/InquilinosListPage';
 import { InquilinoFormPage } from './pages/InquilinoForm/InquilinoFormPage';
 import InquilinoDetailPage from './pages/InquilinoDetail/InquilinoDetailPage';
+import { Dashboard } from './pages/Dashboard';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
+import RelatoriosPage from './pages/Relatorios/RelatoriosPage';
 import { RequireSuperuser } from './components/auth/RequireSuperuser';
+import { AssociacaoManager } from './components/associacoes/AssociacaoManager';
 
 const App: React.FC = () => {
   return (
@@ -18,14 +21,32 @@ const App: React.FC = () => {
       <Router>
         <Layout>
           <Routes>
-            {/* Home route - redirect to apartments */}
-            <Route path="/" element={<Navigate to="/aptos" replace />} />
+            {/* Home route - redirect to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+            {/* Dashboard */}
+            <Route
+              path="/dashboard"
+              element={(
+                <RequireSuperuser>
+                  <Dashboard />
+                </RequireSuperuser>
+              )}
+            />
 
             {/* Main routes */}
             <Route path="/aptos" element={<ApartmentListPage />} />
             <Route path="/aptos/:id" element={<ApartmentDetailPage />} />
             <Route path="/builders" element={<BuilderListPage />} />
             <Route path="/builders/:id" element={<BuilderDetailPage />} />
+            <Route
+              path="/relatorios"
+              element={(
+                <RequireSuperuser>
+                  <RelatoriosPage />
+                </RequireSuperuser>
+              )}
+            />
 
             {/* Inquilinos routes */}
             <Route
@@ -57,6 +78,14 @@ const App: React.FC = () => {
               element={(
                 <RequireSuperuser>
                   <InquilinoFormPage />
+                </RequireSuperuser>
+              )}
+            />
+            <Route
+              path="/inquilinos/:inquilinoId/associacoes"
+              element={(
+                <RequireSuperuser>
+                  <AssociacaoManager />
                 </RequireSuperuser>
               )}
             />

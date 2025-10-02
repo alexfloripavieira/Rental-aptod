@@ -30,6 +30,7 @@ export function InquilinoForm({
 }: InquilinoFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const methods = useForm<InquilinoFormData>({
     resolver: yupResolver(getInquilinoSchema()),
@@ -86,11 +87,13 @@ export function InquilinoForm({
   const onFormSubmit = async (data: InquilinoFormData) => {
     setIsSubmitting(true);
     try {
+      setSubmitError(null);
       await onSubmit(data);
       // Limpar rascunho após sucesso
       localStorage.removeItem('inquilino-draft');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar inquilino:', error);
+      setSubmitError(error?.message || 'Não foi possível salvar o inquilino.');
     } finally {
       setIsSubmitting(false);
     }
@@ -141,6 +144,11 @@ export function InquilinoForm({
 
         {/* Form Content */}
         <div className="bg-white dark:bg-gray-800 dark:border dark:border-gray-700 shadow-lg rounded-lg p-6">
+          {submitError && (
+            <div className="mb-4 rounded-md bg-red-50 dark:bg-red-900/30 p-4 border border-red-200 dark:border-red-800">
+              <p className="text-sm text-red-700 dark:text-red-300">{submitError}</p>
+            </div>
+          )}
           <div role="main" aria-label={`Etapa ${currentStep + 1} de ${STEPS.length}: ${STEPS[currentStep].title}`}>
             <CurrentStepComponent />
           </div>

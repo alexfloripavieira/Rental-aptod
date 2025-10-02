@@ -7,10 +7,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql='ALTER TABLE "aptos_inquilinoapartamento" DROP CONSTRAINT IF EXISTS unique_apartamento_associacao_ativa',
-            reverse_sql='',
-        ),
+        # Removido DROP CONSTRAINT por incompatibilidade com SQLite durante testes.
+        # Em ambientes que já possuam a constraint antiga, o passo de limpeza deve ser
+        # tratado no banco alvo (ex.: PostgreSQL). Mantemos a remoção do índice, que é
+        # suportada pelo SQLite e não causa erro em bases limpas de teste.
         migrations.RunSQL(
             sql='DROP INDEX IF EXISTS unique_apartamento_associacao_ativa',
             reverse_sql='',

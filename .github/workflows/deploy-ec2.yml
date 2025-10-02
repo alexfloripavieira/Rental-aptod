@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          timeout: 300s
+          timeout: 45m
           envs: REMOTE_BRANCH
           script: |
             set -euo pipefail
@@ -94,13 +94,13 @@ jobs:
             git checkout "$branch"
             git reset --hard "origin/$branch"
 
-            # Stop containers gracefully
+            # Stop containers gracefully (keep volumes)
             echo "🛑 Stopping containers..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production down || true
 
-            # Clean up to free disk space
+            # Clean up to free disk space (but keep images and volumes)
             echo "🧹 Cleaning up disk space..."
-            docker system prune -f --volumes || true
+            docker container prune -f || true
             docker builder prune -f || true
             sudo rm -rf frontend/node_modules || true
 
@@ -153,8 +153,9 @@ jobs:
         if: always()
         uses: appleboy/ssh-action@v1.0.3
         with:
+          timeout: 60m
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker image prune -af || true
+            docker image prune -af || true  

@@ -2,8 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+import uuid
 from .validators import validar_cpf_django, validar_cnpj_django
 from .utils import formatar_cpf, formatar_cnpj, limpar_documento
+from .managers import InquilinoOptimizedManager, InquilinoApartamentoOptimizedManager
 
 
 class Builders(models.Model):
@@ -139,6 +141,9 @@ class Inquilino(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Manager otimizado
+    objects = InquilinoOptimizedManager()
+
     class Meta:
         verbose_name = 'Inquilino'
         verbose_name_plural = 'Inquilinos'
@@ -242,6 +247,9 @@ class InquilinoApartamento(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Manager otimizado
+    objects = InquilinoApartamentoOptimizedManager()
 
     class Meta:
         verbose_name = 'Associação Inquilino-Apartamento'
@@ -683,3 +691,112 @@ class DocumentoInquilino(models.Model):
             return f"{self.tamanho / 1024:.1f} KB"
         else:
             return f"{self.tamanho / (1024 * 1024):.1f} MB"
+
+
+# ========================================
+# Modelos de Relatórios e Analytics
+# ========================================
+
+class RelatorioTemplate(models.Model):
+    """Templates de relatórios predefinidos"""
+    TIPO_CHOICES = [
+        ('INQUILINOS_ATIVOS', 'Inquilinos Ativos'),
+        ('OCUPACAO', 'Taxa de Ocupação'),
+        ('INADIMPLENTES', 'Inadimplentes'),
+        ('ROTATIVIDADE', 'Rotatividade'),
+        ('HISTORICO_LOCACOES', 'Histórico de Locações'),
+    ]
+
+    nome = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=30, choices=TIPO_CHOICES)
+    descricao = models.TextField()
+    query_sql = models.TextField(blank=True, null=True)  # Query SQL personalizada
+    parametros_padrao = models.JSONField(default=dict)
+    ativo = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Template de Relatório'
+        verbose_name_plural = 'Templates de Relatórios'
+
+    def __str__(self):
+        return self.nome
+
+
+class RelatorioExecucao(models.Model):
+    """Registro de execuções de relatórios"""
+    STATUS_CHOICES = [
+        ('PENDENTE', 'Pendente'),
+        ('PROCESSANDO', 'Processando'),
+        ('CONCLUIDO', 'Concluído'),
+        ('ERRO', 'Erro'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    template = models.ForeignKey(
+        RelatorioTemplate,
+        on_delete=models.CASCADE,
+        related_name='execucoes'
+    )
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    parametros = models.JSONField(default=dict)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDENTE')
+
+    # Resultados
+    total_registros = models.IntegerField(null=True, blank=True)
+    arquivo_gerado = models.FileField(upload_to='relatorios/', null=True, blank=True)
+    formato = models.CharField(max_length=10, default='PDF')  # PDF, EXCEL, JSON
+
+    # Tempos
+    iniciado_em = models.DateTimeField(auto_now_add=True)
+    concluido_em = models.DateTimeField(null=True, blank=True)
+
+    # Erro
+    erro_detalhes = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Execução de Relatório'
+        verbose_name_plural = 'Execuções de Relatórios'
+        ordering = ['-iniciado_em']
+
+    def duracao_segundos(self):
+        if self.concluido_em:
+            return (self.concluido_em - self.iniciado_em).total_seconds()
+        return None
+
+    def __str__(self):
+        return f"{self.template.nome} - {self.status}"
+
+
+class MetricaOcupacao(models.Model):
+    """Métricas de ocupação calculadas periodicamente"""
+    data_referencia = models.DateField(unique=True)
+    total_apartamentos = models.IntegerField()
+    apartamentos_ocupados = models.IntegerField()
+    taxa_ocupacao = models.DecimalField(max_digits=5, decimal_places=2)
+
+    # Detalhes por tipo
+    pf_ocupados = models.IntegerField(default=0)
+    pj_ocupados = models.IntegerField(default=0)
+
+    # Médias
+    tempo_medio_locacao_dias = models.IntegerField(null=True, blank=True)
+    valor_medio_aluguel = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Métrica de Ocupação'
+        verbose_name_plural = 'Métricas de Ocupação'
+        ordering = ['-data_referencia']
+
+    def __str__(self):
+        return f"{self.data_referencia} - {self.taxa_ocupacao}%"

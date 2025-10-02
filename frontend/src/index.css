@@ -166,6 +166,13 @@
   @apply bg-gray-900 text-gray-100;
 }
 
+/* Força fundo e contraste de campos nativos no modo escuro */
+.dark input:not([type='checkbox']):not([type='radio']):not([type='range']),
+.dark select,
+.dark textarea {
+  @apply bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400;
+}
+
 /* Dark variants for buttons */
 .dark .btn-outline {
   @apply border-primary-400 text-primary-400 hover:bg-primary-900/20;

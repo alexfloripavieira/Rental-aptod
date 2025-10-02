@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { SearchInput } from '../common/SearchInput';
+import { SortSelector } from './SortSelector';
+import { ActiveFilters } from './ActiveFilters';
 import type { InquilinoSearchParams } from '../../types/inquilino';
 
 interface InquilinoFiltersProps {
@@ -9,11 +13,32 @@ interface InquilinoFiltersProps {
 
 export function InquilinoFilters({ filters, onFiltersChange, loading }: InquilinoFiltersProps) {
   const [localFilters, setLocalFilters] = useState<InquilinoSearchParams>(filters);
+  const [searchTerm, setSearchTerm] = useState(filters.search || '');
   const [isOpen, setIsOpen] = useState(false);
+
+  // Debounce da busca para evitar muitas requisições
+  const debouncedSearch = useDebouncedValue(searchTerm, 300);
 
   useEffect(() => {
     setLocalFilters(filters);
+    setSearchTerm(filters.search || '');
   }, [filters]);
+
+  // Aplica busca automaticamente quando o debounced value muda
+  useEffect(() => {
+    if (debouncedSearch !== filters.search) {
+      onFiltersChange({
+        ...localFilters,
+        search: debouncedSearch || undefined,
+        page: 1, // Reset para primeira página ao buscar
+      });
+    }
+  }, [debouncedSearch]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setLocalFilters(prev => ({ ...prev, search: value }));
+  };
 
   const handleFilterChange = (key: keyof InquilinoSearchParams, value: any) => {
     const newFilters = { ...localFilters, [key]: value };
@@ -21,7 +46,7 @@ export function InquilinoFilters({ filters, onFiltersChange, loading }: Inquilin
   };
 
   const handleApplyFilters = () => {
-    onFiltersChange(localFilters);
+    onFiltersChange({ ...localFilters, page: 1 });
     setIsOpen(false);
   };
 
@@ -30,45 +55,53 @@ export function InquilinoFilters({ filters, onFiltersChange, loading }: Inquilin
       page: 1,
       page_size: filters.page_size,
     };
+    setSearchTerm('');
     setLocalFilters(clearedFilters);
     onFiltersChange(clearedFilters);
+  };
+
+  const handleRemoveFilter = (key: keyof InquilinoSearchParams) => {
+    const newFilters = { ...localFilters };
+    delete newFilters[key];
+
+    if (key === 'search') {
+      setSearchTerm('');
+    }
+
+    setLocalFilters(newFilters);
+    onFiltersChange({ ...newFilters, page: 1 });
   };
 
   const hasActiveFilters = Object.keys(filters).some(
     key => key !== 'page' && key !== 'page_size' && filters[key as keyof InquilinoSearchParams]
   );
 
+  const activeFiltersCount = Object.keys(filters).filter(
+    key => key !== 'page' && key !== 'page_size' && filters[key as keyof InquilinoSearchParams]
+  ).length;
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 text-gray-900 dark:text-gray-100">
       {/* Search bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+      <div className="flex flex-col lg:flex-row gap-4 mb-4">
         <div className="flex-1">
           <label htmlFor="search" className="sr-only">
             Buscar inquilinos
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              id="search"
-              placeholder="Buscar por nome, email, CPF ou CNPJ..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              value={localFilters.search || ''}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              disabled={loading}
-            />
-          </div>
+          <SearchInput
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Buscar por nome, email, CPF ou CNPJ..."
+            loading={loading}
+            disabled={loading}
+          />
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className={`inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 ${
+            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors ${
               hasActiveFilters ? 'ring-2 ring-blue-500' : ''
             }`}
           >
@@ -76,38 +109,38 @@ export function InquilinoFilters({ filters, onFiltersChange, loading }: Inquilin
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z" />
             </svg>
             Filtros
-            {hasActiveFilters && (
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">
-                Ativo
+            {activeFiltersCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {activeFiltersCount}
               </span>
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={handleApplyFilters}
-            disabled={loading}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 disabled:opacity-50"
-          >
-            {loading ? (
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            )}
-            Buscar
-          </button>
+          <SortSelector
+            value={localFilters.ordering || ''}
+            onChange={(value) => {
+              handleFilterChange('ordering', value || undefined);
+              handleApplyFilters();
+            }}
+          />
         </div>
       </div>
+
+      {/* Active filters indicators */}
+      {hasActiveFilters && (
+        <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+          <ActiveFilters
+            filters={filters}
+            onRemoveFilter={handleRemoveFilter}
+            onClearAll={handleClearFilters}
+          />
+        </div>
+      )}
 
       {/* Advanced filters */}
       {isOpen && (
         <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Tipo */}
             <div>
               <label htmlFor="tipo" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -159,25 +192,6 @@ export function InquilinoFilters({ filters, onFiltersChange, loading }: Inquilin
               />
             </div>
 
-            {/* Ordenação */}
-            <div>
-              <label htmlFor="ordering" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Ordenar por
-              </label>
-              <select
-                id="ordering"
-                className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                value={localFilters.ordering || ''}
-                onChange={(e) => handleFilterChange('ordering', e.target.value || undefined)}
-              >
-                <option value="">Padrão</option>
-                <option value="nome_completo">Nome A-Z</option>
-                <option value="-nome_completo">Nome Z-A</option>
-                <option value="created_at">Mais antigos</option>
-                <option value="-created_at">Mais recentes</option>
-                <option value="status">Status</option>
-              </select>
-            </div>
           </div>
 
           <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
