@@ -19,17 +19,38 @@ def cache_api_response(timeout=300, key_prefix='api', vary_on=None):
     def decorator(view_func):
         @wraps(view_func)
         def wrapper(request, *args, **kwargs):
-            # Construir chave de cache baseada na requisição
+            """Suporta views funcionais e métodos bound de ViewSets.
+
+            Evita colocar objetos não serializáveis (Request/self) na cache key.
+            A chave considera nome da view, usuário e query params.
+            """
+            # Detecta objeto request caso decorador seja aplicado em método bound
+            req = request
+            is_bound_method = False
+            try:
+                # Em métodos de classe, o primeiro argumento é `self` e o request vem em args[0]
+                from rest_framework.request import Request as DRFRequest  # type: ignore
+                from django.http import HttpRequest  # type: ignore
+                if not hasattr(request, 'GET') and args:
+                    if hasattr(args[0], 'GET') or isinstance(args[0], (DRFRequest, HttpRequest)):
+                        req = args[0]
+                        args = args[1:]
+                        is_bound_method = True
+            except Exception:
+                pass
+
+            # Construir chave de cache baseada apenas em dados serializáveis
             cache_key_data = {
                 'view': view_func.__name__,
-                'args': args,
-                'kwargs': kwargs,
-                'user_id': request.user.id if hasattr(request, 'user') and request.user.is_authenticated else None,
+                'user_id': getattr(getattr(req, 'user', None), 'id', None) if getattr(getattr(req, 'user', None), 'is_authenticated', False) else None,
             }
 
             # Adicionar query params ao cache
-            if hasattr(request, 'GET'):
-                cache_key_data['query_params'] = dict(request.GET)
+            if hasattr(req, 'GET'):
+                try:
+                    cache_key_data['query_params'] = dict(req.GET)
+                except Exception:
+                    cache_key_data['query_params'] = {}
 
             # Adicionar parâmetros personalizados de variação
             if vary_on:
@@ -51,7 +72,10 @@ def cache_api_response(timeout=300, key_prefix='api', vary_on=None):
                 return cached_response
 
             # Executar view
-            response = view_func(request, *args, **kwargs)
+            if is_bound_method:
+                response = view_func(request, req, *args, **kwargs)
+            else:
+                response = view_func(request, *args, **kwargs)
 
             # Cache apenas respostas de sucesso
             if hasattr(response, 'status_code') and response.status_code == 200:

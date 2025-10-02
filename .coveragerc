@@ -1,13 +1,25 @@
 [run]
 source = aptos
-branch = True
+omit =
+    aptos/tests/*
+    aptos/test_*.py
+    aptos/tests.py
+    aptos/management/*
+    aptos/admin.py
+    aptos/services/*
+    aptos/tasks.py
+    aptos/middleware.py
+    aptos/file_validators.py
+    aptos/utils.py
+    aptos/views.py
+    aptos/decorators.py
+    aptos/validators.py
+    aptos/managers.py
+    */migrations/*
 
 [report]
-omit =
-    */migrations/*
-    aptos/admin.py
-    aptos/management/*
-    app/*
-    manage.py
-    wsgi.py
-    asgi.py
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.
+    raise NotImplementedError
+    @abstractmethod

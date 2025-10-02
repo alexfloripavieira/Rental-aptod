@@ -32,8 +32,8 @@ class TestInquilinoAPI(TestCase):
         """Setup comum para testes de API."""
         self.client = APIClient()
 
-        # Criar usuário de teste
-        self.user = User.objects.create_user(
+        # Criar superusuário para passar por IsAdminUser
+        self.user = User.objects.create_superuser(
             username='testuser',
             password='testpass123',
             email='test@example.com'
@@ -133,7 +133,8 @@ class TestInquilinoAPI(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['nome_completo'], 'João Silva')
+        # Lista retorna campo normalizado "nome_exibicao"
+        self.assertEqual(response.data['results'][0]['nome_exibicao'], 'João Silva')
 
     def test_filter_inquilinos_por_status(self):
         """Teste filtro de inquilinos por status."""
@@ -205,10 +206,9 @@ class TestInquilinoAPI(TestCase):
     def test_authentication_required(self):
         """Teste que autenticação é obrigatória."""
         self.client.force_authenticate(user=None)
-
         response = self.client.get('/api/v1/inquilinos/')
-
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # DRF pode retornar 401 (unauthenticated) ou 403 (permission denied) dependendo das classes configuradas
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
 
     def test_pagination_funciona(self):
         """Teste que paginação funciona corretamente."""
@@ -245,7 +245,7 @@ class TestInquilinoApartamentoAPI(TestCase):
     def setUp(self):
         """Setup comum para testes."""
         self.client = APIClient()
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_superuser(
             username='testuser',
             password='testpass123'
         )
@@ -266,7 +266,7 @@ class TestInquilinoApartamentoAPI(TestCase):
             'ativo': True
         }
 
-        response = self.client.post('/api/v1/inquilino-apartamentos/', data)
+        response = self.client.post('/api/v1/associacoes/', data)
 
         if response.status_code != status.HTTP_201_CREATED:
             print(f"Response data: {response.data}")
@@ -278,7 +278,7 @@ class TestInquilinoApartamentoAPI(TestCase):
         """Teste listagem de associações via API."""
         InquilinoApartamentoFactory.create_batch(3)
 
-        response = self.client.get('/api/v1/inquilino-apartamentos/')
+        response = self.client.get('/api/v1/associacoes/')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 3)
@@ -292,7 +292,7 @@ class TestInquilinoApartamentoAPI(TestCase):
         InquilinoApartamentoFactory.create()  # Outro inquilino
 
         response = self.client.get(
-            f'/api/v1/inquilino-apartamentos/?inquilino={inquilino_especifico.id}'
+            f'/api/v1/associacoes/?inquilino={inquilino_especifico.id}'
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -304,7 +304,7 @@ class TestInquilinoApartamentoAPI(TestCase):
         InquilinoApartamentoFactory.create(ativo=True)
         InquilinoApartamentoFactory.create(ativo=False)
 
-        response = self.client.get('/api/v1/inquilino-apartamentos/?ativo=true')
+        response = self.client.get('/api/v1/associacoes/?ativo=true')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 2)
@@ -317,7 +317,7 @@ class TestInquilinoStatusAPI(TestCase):
     def setUp(self):
         """Setup comum para testes."""
         self.client = APIClient()
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_superuser(
             username='testuser',
             password='testpass123'
         )

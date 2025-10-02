@@ -124,6 +124,19 @@ def sample_apartamentos(db):
 
 def pytest_configure(config):
     """Configuração customizada do pytest."""
+    # Evitar dependências externas em tempo de teste (ex.: Redis)
+    try:
+        from django.conf import settings
+        settings.CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                "LOCATION": "aptos-test-cache",
+            }
+        }
+        settings.SESSION_ENGINE = "django.contrib.sessions.backends.db"
+    except Exception:
+        # Caso settings ainda não estejam carregados
+        pass
     # Configurar markers customizados
     config.addinivalue_line(
         "markers", "slow: marca testes como lentos"

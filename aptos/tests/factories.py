@@ -17,9 +17,8 @@ fake = Faker('pt_BR')
 
 
 def gerar_cpf_valido():
-    """Gera CPF válido para testes."""
-    # CPF válido: 111.444.777-35
-    return '11144477735'
+    """Gera CPF válido para testes (apenas dígitos)."""
+    return fake.cpf().replace('.', '').replace('-', '')
 
 
 def gerar_cnpj_valido():
@@ -68,7 +67,7 @@ class InquilinoPFFactory(DjangoModelFactory):
 
     tipo = 'PF'
     nome_completo = factory.Faker('name', locale='pt_BR')
-    cpf = factory.Sequence(lambda n: ['11144477735', '52998224725'][n % 2])
+    cpf = factory.LazyFunction(gerar_cpf_valido)
     email = factory.Sequence(lambda n: f'inquilino{n}@example.com')
     telefone = factory.Faker('phone_number', locale='pt_BR')
     status = 'ATIVO'
@@ -87,7 +86,7 @@ class InquilinoPJFactory(DjangoModelFactory):
     tipo = 'PJ'
     razao_social = factory.Faker('company', locale='pt_BR')
     nome_fantasia = factory.Faker('company', locale='pt_BR')
-    cnpj = factory.Sequence(lambda n: ['11222333000181', '11444777000161', '06990590000123'][n % 3])
+    cnpj = factory.LazyFunction(lambda: fake.cnpj().replace('.', '').replace('-', '').replace('/', ''))
     email = factory.Sequence(lambda n: f'empresa{n}@example.com')
     telefone = factory.Faker('phone_number', locale='pt_BR')
     status = 'ATIVO'
