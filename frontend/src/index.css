@@ -47,6 +47,37 @@
     @apply text-gray-600 dark:text-gray-300 mt-1;
   }
 
+  /* Notification animations - brotar do topo e voltar */
+  @keyframes slide-down {
+    from {
+      transform: translateY(-150%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-150%);
+      opacity: 0;
+    }
+  }
+
+  .animate-fade-in-scale {
+    animation: slide-down 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-fade-out-scale {
+    animation: slide-up 0.3s ease-in forwards;
+  }
+
   .page-actions {
     @apply mt-6 flex flex-wrap gap-2;
   }

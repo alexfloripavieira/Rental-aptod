@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -14,8 +14,27 @@ import NotFoundPage from './pages/NotFound/NotFoundPage';
 import RelatoriosPage from './pages/Relatorios/RelatoriosPage';
 import { RequireSuperuser } from './components/auth/RequireSuperuser';
 import { AssociacaoManager } from './components/associacoes/AssociacaoManager';
+import { NotificationContainer } from './components/common/NotificationContainer';
+import { LoadingOverlay } from './components/common/LoadingOverlay';
+import { setupApiInterceptors, setNotificationCallback, setLoadingCallback } from './services/apiInterceptors';
+import { useNotifications } from './contexts/NotificationContext';
+import { useApp } from './contexts/AppContext';
 
 const App: React.FC = () => {
+  const { addNotification } = useNotifications();
+  const { dispatch } = useApp();
+
+  useEffect(() => {
+    // Configurar interceptors de API
+    setupApiInterceptors();
+
+    // Configurar callbacks para notificações e loading
+    setNotificationCallback(addNotification);
+    setLoadingCallback((loading: boolean) => {
+      dispatch({ type: 'SET_GLOBAL_LOADING', payload: loading });
+    });
+  }, [addNotification, dispatch]);
+
   return (
     <ErrorBoundary>
       <Router>
@@ -93,6 +112,9 @@ const App: React.FC = () => {
             {/* 404 fallback */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+
+          <NotificationContainer />
+          <LoadingOverlay />
         </Layout>
       </Router>
     </ErrorBoundary>
