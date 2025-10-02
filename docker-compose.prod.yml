@@ -14,6 +14,12 @@ services:
     environment:
       - DJANGO_DEBUG=False
       - DJANGO_SETTINGS_MODULE=app.conf.production
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DJANGO_SECRET_KEY=${SECRET_KEY}
     volumes:
       - media_prod_volume:/app/media
       - static_prod_volume:/app/static
