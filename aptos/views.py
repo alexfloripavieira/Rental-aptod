@@ -542,7 +542,8 @@ class InquilinoViewSet(viewsets.ModelViewSet):
     def historico_status(self, request, pk=None):
         """Endpoint para histórico de status"""
         inquilino = self.get_object()
-        historico = inquilino.historico_status.all().order_by("-data_alteracao")
+        # Ordena pelo carimbo de tempo de criação
+        historico = inquilino.historico_status.all().order_by("-timestamp")
         serializer = HistoricoStatusSerializer(historico, many=True)
         return Response(serializer.data)
 
