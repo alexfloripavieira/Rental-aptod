@@ -171,8 +171,13 @@ jobs:
                   -w /var/www/certbot \
                   -d seualuguelfacil.com.br -d www.seualuguelfacil.com.br \
                   --email "$CERTBOT_EMAIL" --agree-tos --non-interactive --keep-until-expiring || true
-              # Reload nginx to pick new certs (ignore failure if unchanged)
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx nginx -s reload || true
+              # Re-enable SSL config if it was disabled and reload nginx
+              if docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx sh -lc '[ -f /etc/nginx/conf.d/default-ssl.conf.disabled ]'; then
+                docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx sh -lc 'mv /etc/nginx/conf.d/default-ssl.conf.disabled /etc/nginx/conf.d/default-ssl.conf && nginx -t' || true
+                docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production restart nginx || true
+              else
+                docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx nginx -s reload || true
+              fi
             else
               echo "ℹ️ CERTBOT_EMAIL not set; skipping certificate issuance"
             fi
