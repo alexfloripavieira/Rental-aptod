@@ -1,15 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { useDebouncedValue } from '../useDebouncedValue';
 
 describe('useDebouncedValue', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
 
   it('deve retornar o valor inicial imediatamente', () => {
     const { result } = renderHook(() => useDebouncedValue('initial', 300));
@@ -31,7 +24,7 @@ describe('useDebouncedValue', () => {
     expect(result.current).toBe('initial');
 
     // Avança o tempo
-    vi.advanceTimersByTime(300);
+    await new Promise((r) => setTimeout(r, 300));
 
     await waitFor(() => {
       expect(result.current).toBe('changed');
@@ -46,17 +39,17 @@ describe('useDebouncedValue', () => {
 
     // Primeira mudança
     rerender({ value: 'change1' });
-    vi.advanceTimersByTime(150);
+    await new Promise((r) => setTimeout(r, 150));
 
     // Segunda mudança antes do delay completar
     rerender({ value: 'change2' });
-    vi.advanceTimersByTime(150);
+    await new Promise((r) => setTimeout(r, 150));
 
     // Ainda deve ser o valor inicial
     expect(result.current).toBe('initial');
 
     // Completa o delay da segunda mudança
-    vi.advanceTimersByTime(150);
+    await new Promise((r) => setTimeout(r, 150));
 
     await waitFor(() => {
       expect(result.current).toBe('change2');
@@ -70,10 +63,10 @@ describe('useDebouncedValue', () => {
     );
 
     rerender({ value: 'changed' });
-    vi.advanceTimersByTime(300);
+    await new Promise((r) => setTimeout(r, 300));
     expect(result.current).toBe('initial');
 
-    vi.advanceTimersByTime(200);
+    await new Promise((r) => setTimeout(r, 200));
     await waitFor(() => {
       expect(result.current).toBe('changed');
     });
@@ -88,7 +81,7 @@ describe('useDebouncedValue', () => {
     expect(result.current).toBe(123);
 
     rerender({ value: 456 });
-    vi.advanceTimersByTime(300);
+    await new Promise((r) => setTimeout(r, 300));
 
     await waitFor(() => {
       expect(result.current).toBe(456);

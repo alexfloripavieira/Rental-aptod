@@ -23,7 +23,8 @@ export function FormField({
       >
         {label}
         {required && (
-          <span className="text-red-500 ml-1" aria-label="obrigatório">
+          // Indicador visual apenas; escondido de tecnologias assistivas
+          <span className="text-red-500 ml-1" aria-hidden="true">
             *
           </span>
         )}
