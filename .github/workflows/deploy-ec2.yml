@@ -162,8 +162,8 @@ jobs:
           script: |
             docker image prune -af || true  
             # (Optional) Issue/renew Let's Encrypt certificates if email provided
+            echo "🔐 Ensuring Let's Encrypt certificates..."
             if [ -n "${CERTBOT_EMAIL:-}" ]; then
-              echo "🔐 Ensuring Let's Encrypt certificates..."
               docker run --rm \
                 -v rental-aptod_certbot_webroot:/var/www/certbot \
                 -v rental-aptod_ssl_certs_volume:/etc/letsencrypt \
@@ -171,6 +171,16 @@ jobs:
                   -w /var/www/certbot \
                   -d seualuguelfacil.com.br -d www.seualuguelfacil.com.br \
                   --email "$CERTBOT_EMAIL" --agree-tos --non-interactive --keep-until-expiring || true
+            else
+              echo "ℹ️ CERTBOT_EMAIL not set; issuing without email (not recommended)"
+              docker run --rm \
+                -v rental-aptod_certbot_webroot:/var/www/certbot \
+                -v rental-aptod_ssl_certs_volume:/etc/letsencrypt \
+                certbot/certbot certonly --webroot \
+                  -w /var/www/certbot \
+                  -d seualuguelfacil.com.br -d www.seualuguelfacil.com.br \
+                  --register-unsafely-without-email --agree-tos --non-interactive --keep-until-expiring || true
+            fi
               # Re-enable SSL config if it was disabled and reload nginx
               if docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx sh -lc '[ -f /etc/nginx/conf.d/default-ssl.conf.disabled ]'; then
                 docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx sh -lc 'mv /etc/nginx/conf.d/default-ssl.conf.disabled /etc/nginx/conf.d/default-ssl.conf && nginx -t' || true
@@ -178,6 +188,5 @@ jobs:
               else
                 docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx nginx -s reload || true
               fi
-            else
-              echo "ℹ️ CERTBOT_EMAIL not set; skipping certificate issuance"
-            fi
+            # show certificate files for debugging
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T nginx sh -lc 'ls -l /etc/nginx/ssl/live/seualuguelfacil.com.br || true'
