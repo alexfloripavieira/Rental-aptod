@@ -126,7 +126,9 @@ jobs:
             fi
 
             echo "🔎 Validating served frontend assets..."
-            ASSETS=$(docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T backend sh -lc "grep -oE '/static/assets/[A-Za-z0-9._-]+\\.(js|css)' app/templates/index.html | sort -u")
+            # Extração robusta dos assets: agora os bundles ficam em /static/assets/js e /static/assets/css
+            # Aceita subdiretórios (js|css) e nomes com hífen, ponto e underscore
+            ASSETS=$(docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T backend sh -lc "grep -oE '/static/assets/[A-Za-z0-9._\/-]+\\.(js|css)' app/templates/index.html | sort -u")
             if [ -z "$ASSETS" ]; then
               echo "❌ Não foi possível extrair assets do index.html" >&2
               exit 1
