@@ -16,6 +16,7 @@ services:
       - DJANGO_SETTINGS_MODULE=app.conf.production
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       - DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS}
+      - DJANGO_CSRF_TRUSTED_ORIGINS=https://seualuguelfacil.com.br,https://www.seualuguelfacil.com.br,http://54.226.183.211,http://localhost
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
