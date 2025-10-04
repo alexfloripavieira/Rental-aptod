@@ -21,7 +21,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.authentication import SessionAuthentication
 from django.conf import settings
 from rest_framework.exceptions import ValidationError as DRFValidationError
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from aptos.models import (
@@ -32,6 +32,7 @@ from aptos.models import (
     HistoricoStatus,
     Inquilino,
     InquilinoApartamento,
+    Locador,
     MetricaOcupacao,
     RegraStatus,
     RelatorioExecucao,
@@ -50,6 +51,7 @@ from aptos.serializers import (
     HistoricoStatusSerializer,
     InquilinoListSerializer,
     InquilinoSerializer,
+    LocadorSerializer,
 )
 from aptos.utils import formatar_cnpj, formatar_cpf, limpar_documento
 from aptos.validators import validar_cnpj, validar_cpf
@@ -74,6 +76,18 @@ def lista_aptos(request):
 def listar_builders(request):
     builders = Builders.objects.prefetch_related("builder_fotos").all()
     return render(request, "aptos/builders_lista.html", {"builders": builders})
+
+
+class LocadorViewSet(viewsets.ModelViewSet):
+    """CRUD de Locadores (proprietários) para preencher contratos."""
+
+    queryset = Locador.objects.all().order_by('-updated_at')
+    serializer_class = LocadorSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
+    search_fields = ['nome_completo', 'cpf', 'email']
+    ordering_fields = ['nome_completo', 'updated_at', 'created_at']
+    ordering = ['nome_completo']
 
 
 # ===== AUTENTICAÇÃO SPA =====

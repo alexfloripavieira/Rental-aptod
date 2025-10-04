@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Builders, Aptos, Foto, BuilderFoto, Inquilino, InquilinoApartamento, HistoricoStatus, HistoricoAssociacao
+from .models import Builders, Aptos, Foto, BuilderFoto, Inquilino, InquilinoApartamento, HistoricoStatus, HistoricoAssociacao, Locador
 
 
 class FotoSerializer(serializers.ModelSerializer):
@@ -194,6 +194,42 @@ class InquilinoSerializer(serializers.ModelSerializer):
                     )
         
         return data
+
+
+class LocadorSerializer(serializers.ModelSerializer):
+    """Serializer para o modelo Locador (proprietário)."""
+
+    class Meta:
+        model = Locador
+        fields = [
+            'id', 'nome_completo', 'nacionalidade', 'estado_civil', 'profissao', 'cpf',
+            'email', 'telefone',
+            'endereco_rua', 'endereco_numero', 'endereco_bairro',
+            'endereco_cidade', 'endereco_estado', 'endereco_cep',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+    def to_frontend_payload(self, obj: Locador) -> dict:
+        """Helper opcional para mapear ao formato usado no formulário de contrato."""
+        return {
+            'id': obj.id,
+            'nomeCompleto': obj.nome_completo,
+            'nacionalidade': obj.nacionalidade,
+            'estadoCivil': obj.estado_civil,
+            'profissao': obj.profissao,
+            'cpf': obj.cpf,
+            'email': obj.email,
+            'telefone': obj.telefone,
+            'endereco': {
+                'rua': obj.endereco_rua,
+                'numero': obj.endereco_numero,
+                'bairro': obj.endereco_bairro,
+                'cidade': obj.endereco_cidade,
+                'estado': obj.endereco_estado,
+                'cep': obj.endereco_cep,
+            }
+        }
 
 
 class InquilinoListSerializer(serializers.ModelSerializer):

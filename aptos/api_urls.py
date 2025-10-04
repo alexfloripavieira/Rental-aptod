@@ -24,6 +24,7 @@ router.register(r'inquilinos', views.InquilinoViewSet, basename='inquilinos')
 router.register(r'status', views.StatusViewSet, basename='status')
 router.register(r'associacoes', views.AssociacaoViewSet, basename='associacoes')
 router.register(r'relatorios', views.RelatorioViewSet, basename='relatorios')
+router.register(r'locadores', views.LocadorViewSet, basename='locadores')
 
 urlpatterns = [
     # API endpoints via router
@@ -40,4 +41,7 @@ urlpatterns = [
     path('inquilinos/<int:inquilino_id>/upload-documento/', upload_documento, name='upload_documento'),
     path('documentos/<int:documento_id>/download/', download_documento, name='download_documento'),
     path('inquilinos/<int:inquilino_id>/documentos/', listar_documentos_inquilino, name='listar_documentos_inquilino'),
+
+    # API de geração de contratos
+    path('contratos/', include('aptos.contratos.urls')),
 ]

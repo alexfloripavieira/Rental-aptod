@@ -4,12 +4,14 @@ import { InquilinoForm } from '../../components/inquilinos/InquilinoForm';
 import { Loading } from '../../components/common/Loading';
 import { ErrorState } from '../../components/common/ErrorState';
 import { inquilinoService } from '../../services/inquilinoService';
+import { useNotifications } from '../../contexts/NotificationContext';
 import type { InquilinoFormData, Inquilino } from '../../types/inquilino';
 
 export function InquilinoFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
+  const { addNotification } = useNotifications();
 
   const [inquilino, setInquilino] = useState<Inquilino | null>(null);
   const [loading, setLoading] = useState(isEditing);
@@ -36,16 +38,38 @@ export function InquilinoFormPage() {
   };
 
   const handleSubmit = async (data: InquilinoFormData) => {
+    console.log('[InquilinoFormPage] handleSubmit iniciado', { isEditing, id, data });
     try {
       if (isEditing && id) {
-        await inquilinoService.update(parseInt(id, 10), data);
+        console.log('[InquilinoFormPage] Atualizando inquilino', id);
+        const updated = await inquilinoService.update(parseInt(id, 10), data);
+        console.log('[InquilinoFormPage] Inquilino atualizado com sucesso', updated);
+
+        addNotification({
+          type: 'success',
+          title: 'Inquilino atualizado',
+          message: 'As alterações foram salvas com sucesso.'
+        });
+
+        console.log('[InquilinoFormPage] Navegando para /inquilinos/' + id);
+        navigate(`/inquilinos/${id}`);
       } else {
-        await inquilinoService.create(data);
+        console.log('[InquilinoFormPage] Criando novo inquilino');
+        const created = await inquilinoService.create(data);
+        console.log('[InquilinoFormPage] Inquilino criado com sucesso', created);
+
+        addNotification({
+          type: 'success',
+          title: 'Inquilino criado',
+          message: 'Cadastro realizado com sucesso.'
+        });
+
+        console.log('[InquilinoFormPage] Navegando para /inquilinos/' + created.id);
+        navigate(`/inquilinos/${created.id}`);
       }
-      navigate('/inquilinos');
     } catch (error) {
-      console.error('Erro ao salvar inquilino:', error);
-      throw error; // Re-throw para o formulário tratar
+      console.error('[InquilinoFormPage] Erro ao salvar inquilino:', error);
+      throw error;
     }
   };
 
@@ -88,7 +112,7 @@ export function InquilinoFormPage() {
     cpf: inquilino.cpf,
     rg: inquilino.rg,
     data_nascimento: inquilino.data_nascimento,
-    estado_civil: inquilino.estado_civil,
+    estado_civil: inquilino.estado_civil ? inquilino.estado_civil.toUpperCase() : '',
     profissao: inquilino.profissao,
     renda: inquilino.renda,
 

@@ -116,6 +116,19 @@
     @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
   }
 
+  /* Modal form helpers */
+  .modal-form input,
+  .modal-form textarea,
+  .modal-form select {
+    @apply bg-white text-gray-900 border-gray-300;
+  }
+
+  .dark .modal-form input,
+  .dark .modal-form textarea,
+  .dark .modal-form select {
+    @apply bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400;
+  }
+
   .input-error {
     @apply border-error-500 focus:ring-error-500 focus:border-error-500;
   }

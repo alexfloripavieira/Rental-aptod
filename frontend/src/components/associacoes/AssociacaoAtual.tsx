@@ -3,9 +3,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Modal } from '../common/Modal';
 import { FormField } from '../common/FormField';
+import type { AssociacaoDetail } from '../../types/inquilino';
 
 interface AssociacaoAtualProps {
-  associacao: any;
+  associacao: AssociacaoDetail | null;
   onFinalizar: (id: number, dataFim?: string, motivo?: string) => Promise<void>;
 }
 

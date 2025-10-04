@@ -85,16 +85,20 @@ export function InquilinoForm({
   };
 
   const onFormSubmit = async (data: InquilinoFormData) => {
+    console.log('[InquilinoForm] onFormSubmit chamado');
+    console.debug('[InquilinoForm] submit payload', data);
     setIsSubmitting(true);
     try {
       setSubmitError(null);
+      console.log('[InquilinoForm] Chamando onSubmit...');
       await onSubmit(data);
-      // Limpar rascunho após sucesso
+      console.log('[InquilinoForm] onSubmit concluído com sucesso');
       localStorage.removeItem('inquilino-draft');
     } catch (error: any) {
-      console.error('Erro ao salvar inquilino:', error);
+      console.error('[InquilinoForm] Erro ao salvar inquilino:', error);
       setSubmitError(error?.message || 'Não foi possível salvar o inquilino.');
     } finally {
+      console.log('[InquilinoForm] Finalizando submit, isSubmitting = false');
       setIsSubmitting(false);
     }
   };
@@ -177,7 +181,24 @@ export function InquilinoForm({
               ) : (
                 <button
                   type="button"
-                  onClick={handleSubmit(onFormSubmit)}
+                  onClick={async (e) => {
+                    console.log('[InquilinoForm] Botão clicado');
+
+                    // Primeira validação: garante que o campo 'tipo' está processado
+                    await trigger('tipo');
+
+                    // Segunda validação: valida todos os campos com base no tipo
+                    const isFormValid = await trigger();
+                    console.log('[InquilinoForm] Validação resultado:', isFormValid);
+
+                    if (isFormValid) {
+                      handleSubmit(onFormSubmit)(e);
+                    } else {
+                      const errors = methods.formState.errors;
+                      console.error('[InquilinoForm] Formulário inválido. Erros:', errors);
+                      setSubmitError('Por favor, corrija os erros no formulário antes de continuar.');
+                    }
+                  }}
                   disabled={isSubmitting}
                   className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

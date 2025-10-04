@@ -25,26 +25,42 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const handleMaskedInput = (inputValue: string) => {
       if (!mask) return inputValue;
 
-      let maskedValue = inputValue.replace(/\D/g, '');
+      let digits = inputValue.replace(/\D/g, '');
 
       switch (mask) {
-        case '000.000.000-00': // CPF
-          maskedValue = maskedValue.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-          break;
-        case '00.000.000/0000-00': // CNPJ
-          maskedValue = maskedValue.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-          break;
-        case '(00) 00000-0000': // Telefone
-          maskedValue = maskedValue.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-          break;
-        case '00.000.000-0': // RG
-          maskedValue = maskedValue.replace(/(\d{2})(\d{3})(\d{3})(\d{1})/, '$1.$2.$3-$4');
-          break;
+        case '000.000.000-00': { // CPF
+          digits = digits.slice(0, 11);
+          if (digits.length <= 3) return digits;
+          if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+          if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+          return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+        }
+        case '00.000.000/0000-00': { // CNPJ
+          digits = digits.slice(0, 14);
+          if (digits.length <= 2) return digits;
+          if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+          if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+          if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+          return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+        }
+        case '(00) 00000-0000': { // Telefone
+          digits = digits.slice(0, 11);
+          if (digits.length === 0) return '';
+          if (digits.length <= 2) return `(${digits}`;
+          if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+          if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, digits.length - 4)}-${digits.slice(digits.length - 4)}`;
+          return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+        }
+        case '00.000.000-0': { // RG
+          digits = digits.slice(0, 9);
+          if (digits.length <= 2) return digits;
+          if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+          if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+          return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}-${digits.slice(8)}`;
+        }
         default:
-          break;
+          return inputValue;
       }
-
-      return maskedValue;
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +99,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       ${loading ? 'bg-gray-50 dark:bg-gray-700' : ''}
       ${className}
     `.trim();
+
+    React.useEffect(() => {
+      if (mask && typeof value === 'string') {
+        const formatted = handleMaskedInput(value);
+        if (formatted !== value) {
+          formOnChange(formatted);
+        }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mask]);
 
     return (
       <div className="relative">

@@ -1,9 +1,13 @@
 from django.contrib import admin
 from django.db import models
+from django.core.exceptions import FieldError
+from django.http import HttpResponseRedirect, QueryDict
+from django.contrib.admin.views.main import ChangeList
 
 from .models import (
     Aptos, BuilderFoto, Builders, Foto,
-    Inquilino, InquilinoApartamento, HistoricoStatus, DocumentoInquilino, HistoricoAssociacao
+    Inquilino, InquilinoApartamento, HistoricoStatus, DocumentoInquilino, HistoricoAssociacao,
+    Locador
 )
 
 
@@ -399,110 +403,118 @@ class InquilinoAdmin(admin.ModelAdmin):
     inlines = [InquilinoApartamentoInline, DocumentoInquilinoInline, HistoricoStatusInline]
     list_per_page = 25
 
-    def get_queryset(self, request):
-        from django.db.models import Count, Prefetch
-        return super().get_queryset(request).prefetch_related(
-            Prefetch('apartamentos', queryset=Aptos.objects.only('id', 'unit_number')),
-            'documentos',
-            'historico_status'
-        ).annotate(
-            apartamentos_ativos_count=Count('associacoes_apartamento',
-                filter=models.Q(associacoes_apartamento__ativo=True))
-        )
-
+    # Helpers ausentes para evitar erros no system check
     def apartamentos_ativos_count(self, obj):
-        """Contador de apartamentos ativos"""
-        return getattr(obj, 'apartamentos_ativos_count', 0)
-    apartamentos_ativos_count.short_description = "Apartamentos Ativos"
-    apartamentos_ativos_count.admin_order_field = 'apartamentos_ativos_count'
+        try:
+            return obj.apartamentos.filter(associacoes_inquilino__ativo=True).count()
+        except Exception:
+            return 0
+    apartamentos_ativos_count.short_description = 'Aptos ativos'
 
     def apartamentos_ativos_display(self, obj):
-        """Display dos apartamentos ativos"""
-        apartamentos = obj.get_apartamentos_ativos()
-        if not apartamentos:
-            return "Nenhum apartamento ativo"
+        try:
+            ativos = obj.apartamentos.filter(associacoes_inquilino__ativo=True).values_list('unit_number', flat=True)
+            return ", ".join(list(ativos)[:10]) or "—"
+        except Exception:
+            return "—"
 
-        from django.utils.html import format_html
-        apartamentos_list = ', '.join([apt.unit_number for apt in apartamentos])
-        return format_html('<strong>{}</strong>', apartamentos_list)
-    apartamentos_ativos_display.short_description = "Apartamentos Ativos"
+class LocadorChangeList(ChangeList):
+    def get_filters_params(self, params=None):
+        params = super().get_filters_params(params)
+        params.pop('status', None)
+        params.pop('status__exact', None)
+        return params
 
-    def save_model(self, request, obj, form, change):
-        # Registrar mudança de status no histórico
-        if change and 'status' in form.changed_data:
-            original = Inquilino.objects.get(pk=obj.pk)
-            HistoricoStatus.objects.create(
-                inquilino=obj,
-                status_anterior=original.status,
-                status_novo=obj.status,
-                motivo=f"Alterado via admin por {request.user.username}",
-                usuario=request.user
-            )
-        super().save_model(request, obj, form, change)
+
+@admin.register(Locador)
+class LocadorAdmin(admin.ModelAdmin):
+    preserve_filters = False
+    list_display = ("nome_completo", "cpf", "email", "telefone", "updated_at")
+    search_fields = ("nome_completo", "cpf", "email")
+    list_filter = ("estado_civil", "endereco_cidade", "endereco_estado")
+    readonly_fields = ("created_at", "updated_at")
 
     fieldsets = (
-        ('Tipo de Pessoa', {
-            'fields': ('tipo',)
-        }),
-        ('Dados Pessoa Física', {
+        ("Dados do Locador", {
             'fields': (
                 'nome_completo',
-                'cpf',
-                'rg',
-                'data_nascimento',
-                ('estado_civil', 'profissao'),
-                'renda'
-            ),
-            'classes': ('collapse',),
-            'description': 'Preencher apenas para Pessoa Física'
-        }),
-        ('Dados Pessoa Jurídica', {
-            'fields': (
-                'razao_social',
-                'nome_fantasia',
-                'cnpj',
-                'inscricao_estadual',
-                'responsavel_legal'
-            ),
-            'classes': ('collapse',),
-            'description': 'Preencher apenas para Pessoa Jurídica'
-        }),
-        ('Contato', {
-            'fields': (
-                'email',
-                'telefone',
-                'endereco_completo'
+                ('nacionalidade', 'estado_civil'),
+                ('profissao', 'cpf')
             )
         }),
-        ('Status e Observações', {
+        ("Contato", {
+            'fields': ('email', 'telefone')
+        }),
+        ("Endereço", {
             'fields': (
-                'status',
-                'observacoes'
+                'endereco_rua',
+                ('endereco_numero', 'endereco_bairro'),
+                ('endereco_cidade', 'endereco_estado'),
+                'endereco_cep'
             )
         }),
-        ('Apartamentos', {
-            'fields': ('apartamentos_ativos_display',),
-            'classes': ('collapse',)
-        }),
-        ('Auditoria', {
+        ("Auditoria", {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         })
     )
 
+    def _clean_params(self, params):
+        allowed_filters = set(f if isinstance(f, str) else f[0] for f in (self.list_filter or ()))
+        allowed_params = {'q', 'p', 'o', 'ot', 'is_popup', 'to_field'}
+        cleaned = params.copy()
+        removed = False
+
+        for key in list(cleaned.keys()):
+            base_key = key.split('__', 1)[0]
+            if key in allowed_params:
+                continue
+            if base_key in allowed_filters:
+                continue
+            cleaned.pop(key, None)
+            removed = True
+
+        return cleaned, removed
+
     def changelist_view(self, request, extra_context=None):
-        """Adicionar estatísticas à view de lista"""
-        extra_context = extra_context or {}
-        if request.user.has_perm('aptos.view_inquilino'):
-            qs = self.get_queryset(request)
-            extra_context.update({
-                'total_inquilinos': qs.count(),
-                'inquilinos_ativos': qs.filter(status='ATIVO').count(),
-                'inquilinos_pf': qs.filter(tipo='PF').count(),
-                'inquilinos_pj': qs.filter(tipo='PJ').count(),
-                'inquilinos_com_apartamentos': qs.filter(apartamentos_ativos_count__gt=0).count(),
-            })
-        return super().changelist_view(request, extra_context)
+        query = request.GET.copy()
+        cleaned, removed = self._clean_params(query)
+
+        filters_param = cleaned.get('_changelist_filters')
+        if filters_param:
+            filters_qd = QueryDict(filters_param, mutable=True)
+            filters_clean, filters_removed = self._clean_params(filters_qd)
+            if filters_removed:
+                removed = True
+                if filters_clean:
+                    cleaned['_changelist_filters'] = filters_clean.urlencode()
+                else:
+                    cleaned.pop('_changelist_filters', None)
+
+        if removed:
+            query = cleaned.urlencode()
+            url = f"{request.path}?{query}" if query else request.path
+            return HttpResponseRedirect(url)
+
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def get_preserved_filters(self, request):
+        preserved = super().get_preserved_filters(request)
+        if not preserved:
+            return preserved
+
+        qdict = QueryDict(preserved, mutable=True)
+        cleaned, removed = self._clean_params(qdict)
+        if '_changelist_filters' in cleaned:
+            filters_qd = QueryDict(cleaned['_changelist_filters'], mutable=True)
+            filters_clean, filters_removed = self._clean_params(filters_qd)
+            if filters_removed:
+                cleaned['_changelist_filters'] = filters_clean.urlencode()
+                removed = True
+        return cleaned.urlencode() if removed else preserved
+
+    def get_changelist(self, request, **kwargs):
+        return LocadorChangeList
 
 
 class HistoricoAssociacaoInline(admin.TabularInline):

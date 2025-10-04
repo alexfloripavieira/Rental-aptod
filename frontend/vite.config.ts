@@ -7,6 +7,7 @@ export default defineConfig(async ({ mode }) => {
   // Permite definir a base via env. Em produção (Django), use '/static/'.
   const base = env.VITE_BASE_PATH || (process.env.NODE_ENV === 'production' ? '/static/' : '/')
   const isProd = mode === 'production' || process.env.NODE_ENV === 'production'
+  const proxyTarget = env.VITE_BACKEND_PROXY_TARGET || 'http://localhost:8000'
 
   // Carrega o plugin de compressão apenas em produção
   let compressionPlugins: any[] = []
@@ -35,12 +36,12 @@ export default defineConfig(async ({ mode }) => {
       host: true,
       proxy: {
         '/api': {
-          target: 'http://localhost:8000',
+          target: proxyTarget,
           changeOrigin: true,
           secure: false,
         },
         '/media': {
-          target: 'http://localhost:8000',
+          target: proxyTarget,
           changeOrigin: true,
           secure: false,
         },

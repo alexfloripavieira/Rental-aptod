@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Contrato de Locação Residencial</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.2cm 1.8cm;
+        }
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 10.5pt;
+            line-height: 1.25;
+            text-align: justify;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        .titulo {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+            margin-bottom: 12px;
+            text-decoration: underline;
+        }
+        .clausula {
+            margin-bottom: 7px;
+            text-align: justify;
+        }
+        .clausula strong {
+            text-decoration: underline;
+        }
+        .paragrafo {
+            margin-left: 20px;
+            margin-top: 3px;
+            margin-bottom: 3px;
+        }
+        .assinatura {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .linha-assinatura {
+            margin-top: 18px;
+            margin-bottom: 2px;
+        }
+        p {
+            margin-bottom: 6px;
+            margin-top: 0;
+        }
+        .regimento-titulo {
+            text-align: center;
+            font-weight: bold;
+            font-size: 11pt;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .regimento-item {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+    <!-- PÁGINA 1 -->
+    <div class="titulo">CONTRATO DE LOCAÇÃO RESIDENCIAL</div>
+
+    <p><strong>LOCADOR:</strong> {{ locador.nomeCompleto }}, {{ locador.nacionalidade }}, {{ locador.estadoCivil }}, {{ locador.profissao }}, inscrito no CPF sob o nº {{ locador.cpf }}, domiciliado à {{ locador.endereco.rua }}, {{ locador.endereco.numero }}, bairro {{ locador.endereco.bairro }}, na cidade de {{ locador.endereco.cidade }} – {{ locador.endereco.estado }}, CEP {{ locador.endereco.cep }}.</p>
+
+    <p><strong>LOCATÁRIO(A):</strong> {{ locatario.nomeCompleto }}, {{ locatario.nacionalidade }}, {{ locatario.profissao }}, residente a {{ locatario.enderecoCompleto }} com telefone número {{ locatario.telefone }} inscrito no CPF {{ locatario.cpf }}, e RG {{ locatario.rg }} {{ locatario.rgOrgao }} e email: {{ locatario.email }}.</p>
+
+    <p><strong>OBJETO:</strong> {{ objeto_descricao }}</p>
+
+    <p>Por este particular instrumento, as partes supra qualificadas resolvem, de comum acordo e de livre e espontânea vontade, firmar um Contrato de Locação Residencial, tendo por objeto o imóvel declinado no preâmbulo, a reger-se pelas seguintes cláusulas e condições:</p>
+
+    <div class="clausula">
+        <strong>PRIMEIRA:</strong> O prazo da locação é de doze (12) meses, iniciando-se no dia {{ contrato.dataInicioFormatada }} e findando-se em {{ contrato.dataFimFormatada }}, renovando-se automaticamente no silêncio das partes.
+    </div>
+
+    <div class="clausula">
+        <strong>SEGUNDA:</strong> {{ contrato.clausulaSegunda }}
+    </div>
+
+    <div class="clausula">
+        <strong>TERCEIRA:</strong> O valor do locativo mensal será anualmente reajustado, segundo os índices do IGPM acumulados no período e, no caso de sua extinção, de forma alternativa e subsidiária, pelos do IPCA.
+    </div>
+
+    <div class="clausula">
+        <strong>QUARTA:</strong> A não observância do prazo estabelecido na cláusula segunda, implicará na incidência de multa diária de 1% sobre o valor do aluguel, até o limite de 20%, acrescido de juros de mora de 1% ao mês ou fração e atualização monetária.
+        <div class="paragrafo">
+            <strong>§ ÚNICO:</strong> A eventual tolerância em qualquer atraso ou demora no pagamento de aluguéis, impostos, taxas, seguro, ou demais encargos de responsabilidade do LOCATÁRIO, em hipótese alguma poderá ser considerada como modificação das condições do contrato, que permanecerão em vigor para todos os efeitos.
+        </div>
+    </div>
+
+    <div class="clausula">
+        <strong>QUINTA:</strong> Além do aluguel, obriga se o(a) LOCATÁRIO(A) a efetuar o pagamento dos seguintes encargos, que poderão ser exigidos juntamente com o aluguel:
+        <div class="paragrafo">a) o consumo individual de energia elétrica;</div>
+        <div class="paragrafo">
+            <strong>§ ÚNICO:</strong> O não pagamento desses encargos nas épocas próprias, facultará ao LOCADOR a justa recusa ao recebimento dos alugueres, sujeitando-se o(a) LOCATÁRIO(A) ao pagamento dos ônus decorrentes do inadimplemento, previstos para cada débito, independentemente de eventual ação de despejo.
+        </div>
+    </div>
+
+    <div class="clausula">
+        <strong>SEXTA:</strong> O imóvel objeto deste instrumento é locado exclusivamente para servir de residência ao(à) LOCATÁRIO(A), não podendo sua destinação ser alterada, substituída ou acrescida de qualquer outra, sem prévia e expressa anuência escrita do LOCADOR. Fica vedado outrossim, a sublocação, cessão ou transferência deste contrato, bem como o empréstimo, parcial ou total do imóvel locado, que dependerão também, de prévia e expressa anuência escrita do LOCADOR.
+    </div>
+
+    <div class="clausula">
+        <strong>SÉTIMA:</strong> O imóvel objeto deste, foi entregue ao(a) LOCATÁRIO(A) com {{ inventarioMoveis }}. Obriga-se o(a) LOCATÁRIO(A) a devolvê-lo, uma vez finda a locação, nas mesmas condições em que o recebeu, razão pela qual, no momento da restituição das chaves, proceder-se-á a uma nova vistoria.
+        <div class="paragrafo">
+            <strong>§ ÚNICO:</strong> Constatadas eventuais irregularidades e a necessidade de reparos no imóvel em decorrência de uso indevido, fará o LOCADOR apresentar de imediato ao(à) LOCATÁRIO(A), um orçamento prévio por profissional do ramo, sendo-lhe facultado pagar o valor nele declinado, liberando-se assim de eventuais ônus em razão de demora e/ou imperfeições nos serviços. Caso contrário, poderá contratar por sua própria conta e risco mão-de-obra especializada, arcando nessa condição com os riscos de eventuais imperfeições dos serviços e pelo pagamento do aluguel dos dias despendidos para a sua execução, cessando a locação unicamente com a entrega formal das chaves.
+        </div>
+    </div>
+
+    <div class="clausula">
+        <strong>OITAVA:</strong> Obriga-se o(a) LOCATÁRIO(A) a manter o imóvel sempre limpo e bem cuidado na vigência da locação, correndo por sua conta e risco, não só as benfeitorias voluptuárias e as úteis, mas também as multas a que der causa, por inobservância de quaisquer leis, decretos e/ou regulamentos do condomínio residencial.
+        <div class="paragrafo">
+            <strong>§ ÚNICO:</strong> Eventuais benfeitorias, na vigência do presente contrato, que se fizerem necessárias, ou seja, aquelas que têm por fim conservar o bem ou evitar que se deteriore, não serão indenizáveis pelo LOCADOR, e poderão ser executadas por este, quando deverão ser ressarcidas pelo LOCATÁRIO junto com o aluguel seguinte.
+        </div>
+    </div>
+
+    <div class="clausula">
+        <strong>NONA:</strong> O(A) LOCATÁRIO(A) não poderá fazer no imóvel ou em suas dependências, quaisquer obras ou benfeitorias úteis ou voluptuárias, e, em fazendo, concorda em não ter direito a qualquer indenização ou direito de retenção.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA:</strong> Obriga-se desde já o(a) LOCATÁRIO(A), a respeitar os regulamentos do edifício (termos em anexo) as leis vigentes, bem como o direito de vizinhança, evitando a prática de quaisquer atos que possam perturbar a tranquilidade ou ameaçar a saúde pública.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA PRIMEIRA:</strong> A forma de garantia de locação será o pagamento antecipado do respectivo mês vincendo, nos termos do art. 42 da Lei de Locações.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA SEGUNDA:</strong> Qualquer tolerância ou concessão, com o fito de resolver extrajudicialmente questão legal ou contratual, não se constituirá em precedente invocável pelo(a) LOCATÁRIO(A) e nem modificará quaisquer das condições estabelecidas neste instrumento.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA QUARTA:</strong> A falta de cumprimento de qualquer cláusula ou condição deste instrumento, implicará na sua imediata rescisão, ficando a parte infratora sujeita ao pagamento de uma multa, equivalente a dois meses de aluguel, pelo valor vigente à época da infração, além de perdas e danos.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA QUINTA:</strong> Sempre que o LOCADOR for obrigado a se valer de medidas judiciais para a defesa de direitos e obrigações decorrentes deste instrumento, o valor devido a título de honorários, será de 20% (vinte por cento) sobre o valor da causa, elegendo, desde já, o foro da cidade de Florianópolis, para a solução das questões dele emergentes, autorizando o recebimento de correspondências por carta com AR.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA SEXTA:</strong> O não pagamento de quaisquer obrigações previstas neste contrato autoriza o LOCADOR a incluir/negativar o LOCATÁRIO em listas de cadastro de restrição ao crédito, tais como SPC, SERASA ou similares.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA SÉTIMA:</strong> Como forma de garantia contratual e estado de conservação do imóvel será pago em mãos do locador, servindo este como recibo, a quantia caução de {{ contrato.valorCaucaoFormatado }}. Ao fim do contrato, em se cumprindo todas as cláusulas, a quantia será devolvida ao locatário.
+    </div>
+
+    <div class="clausula">
+        <strong>DÉCIMA OITAVA:</strong> Em sendo rescindido o contrato, por qualquer motivo, é dever do LOCATÁRIO notificar todos os seus correspondentes para que atualizem seu endereço e não mais enviem suas correspondências ao imóvel aqui alugado. Ainda assim, em sendo enviado quaisquer correspondências ao imóvel aqui alugado, o LOCATÁRIO autoriza, desde já, o LOCADOR, sem qualquer necessidade de aviso prévio, a proceder o descarte e inutilização de tais documentos.
+    </div>
+
+    <p style="margin-top: 12px; margin-bottom: 8px;">E por estarem assim justas e contratadas, assinam o presente, em duas (02) vias, de igual teor e forma, na presença das testemunhas retro, para que surta seus legais e jurídicos efeitos, obrigando-se por si, seus herdeiros e/ou sucessores, ao fiel cumprimento de todas as suas cláusulas e condições.</p>
+
+    <div style="text-align: center; margin-top: 15px; margin-bottom: 8px;">
+        <p style="margin-bottom: 15px;">Florianópolis, {{ dataAssinatura }}</p>
+        <p style="margin-bottom: 3px;">............................................</p>
+        <p style="margin-bottom: 10px; font-size: 9pt;">Locador</p>
+        <p style="margin-bottom: 3px;">............................................</p>
+        <p style="margin-bottom: 10px; font-size: 9pt;">Locatário</p>
+        <p style="margin-bottom: 3px;">............................................</p>
+        <p style="margin-bottom: 3px; font-size: 9pt;">Testemunha 1</p>
+        <p style="margin-bottom: 3px;">............................................</p>
+        <p style="margin-bottom: 0; font-size: 9pt;">Testemunha 2</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="regimento-titulo">REGIMENTO INTERNO A SER OBSERVADO:</div>
+
+    <div class="regimento-item">
+        <strong>1)</strong> De forma a evitar perturbação do sossego fica proibido o uso de equipamentos sonoros, reuniões, festas ou qualquer ato causador de barulho no período compreendido entre às 22:00 e 08:00 hs.
+    </div>
+
+    <div class="regimento-item">
+        <strong>2)</strong> A lixeira do prédio fica localizada junto à Travessa da Amizade (fundos do edifício), sendo que o lixeiro recolhe o lixo nas terças, quintas e sábados (procure colocar o lixo nos dias de recolhimento). NÃO DEVE SER DEPOSITADO, ainda que temporariamente, lixos nos corredores, sacadas, lavanderia, escadas, ou em qualquer outro lugar que não a lixeira.
+    </div>
+
+    <div class="regimento-item">
+        <strong>3)</strong> Ás áreas comuns do prédio são limpas a cada 07 dias. Portanto, todos podem colaborar em manter os corredores limpos nesse intervalo.
+    </div>
+
+    <div class="regimento-item">
+        <strong>4)</strong> A lavanderia de uso coletivo, localizada ao lado do edifício, deve ser utilizada das 07:00 às 23:00 hs sob pena de perturbação do sossego. Durante o período narrado não deve ser depositado roupas para permanecer em molho dentro da máquina de lavar. O depósito de roupas por longo período, no interior da máquina de lavar, de forma que impossibilite o uso da máquina pelos demais condôminos, autoriza a retirada das referidas roupas e depósito junto ao tanque disposto no mesmo local.
+    </div>
+
+    <div class="regimento-item">
+        <strong>5)</strong> NÃO É PERMITIDA a lavagem de edredom, cobertor, travesseiros ou quaisquer outras roupas que comprometam o bom funcionamento da máquina de lavar (peso máximo 5 quilos).
+    </div>
+
+    <div class="regimento-item">
+        <strong>7)</strong> Animais de estimação, de qualquer espécie ou tamanho, não são permitidos.
+    </div>
+
+    <div class="regimento-item">
+        <strong>8)</strong> Não é permitido o consumo de cigarros, charutos, cachimbos, maconha, ou qualquer outro similar dentro dos apartamentos ou áreas internas do edifício. O uso destes deve se dar EXCLUSIVAMENTE na área externa do edifício.
+    </div>
+
+    <div class="regimento-item">
+        <strong>9)</strong> Qualquer atitude considerada contrária à boa convivência será considerada infração contratual.
+    </div>
+
+    <div class="regimento-item">
+        <strong>10)</strong> A não observância ao regimento interno bem como as regras de boa convivência acarretará na aplicação de uma multa de R$100,00. Na reincidência será aplicada a IMEDIATA rescisão do contrato.
+    </div>
+
+    <p style="margin-top: 10px; margin-bottom: 0;">Por fim, qualquer fato anormal DEVE ser comunicado de imediato aos proprietários através do e-mail: {{ locador.email }}</p>
+</body>
+</html>

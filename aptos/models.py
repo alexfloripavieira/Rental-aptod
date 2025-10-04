@@ -8,6 +8,41 @@ from .utils import formatar_cpf, formatar_cnpj, limpar_documento
 from .managers import InquilinoOptimizedManager, InquilinoApartamentoOptimizedManager
 
 
+class Locador(models.Model):
+    """Dados do locador (proprietário) para geração de contratos.
+
+    Mantém dados pessoais e de endereço para pré-preenchimento.
+    """
+
+    id = models.AutoField(primary_key=True)
+    nome_completo = models.CharField(max_length=200)
+    nacionalidade = models.CharField(max_length=50)
+    estado_civil = models.CharField(max_length=30)
+    profissao = models.CharField(max_length=100)
+    cpf = models.CharField(
+        max_length=14,
+        unique=True,
+        validators=[validar_cpf_django],
+        help_text="Formato: XXX.XXX.XXX-XX",
+    )
+    # Contatos opcionais
+    email = models.EmailField(blank=True, null=True)
+    telefone = models.CharField(max_length=20, blank=True, null=True)
+
+    # Endereço
+    endereco_rua = models.CharField(max_length=200)
+    endereco_numero = models.CharField(max_length=20)
+    endereco_bairro = models.CharField(max_length=100)
+    endereco_cidade = models.CharField(max_length=100)
+    endereco_estado = models.CharField(max_length=2)
+    endereco_cep = models.CharField(max_length=9)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.nome_completo} (CPF: {self.cpf})"
+
 class Builders(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)

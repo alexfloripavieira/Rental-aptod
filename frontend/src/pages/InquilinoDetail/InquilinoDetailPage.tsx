@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Loading } from '../../components/common/Loading';
 import { ErrorState } from '../../components/common/ErrorState';
 import { inquilinoService } from '../../services/inquilinoService';
+import { GerarContratoButton, GerarContratoModal } from '../../components/contratos';
+import type { ContratoFormData } from '../../types/contrato';
 import { associacaoService } from '../../services/associacaoService';
 import { apiClient } from '../../services/api';
 import type {
@@ -81,6 +83,7 @@ export function InquilinoDetailPage() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [showContratoModal, setShowContratoModal] = useState(false);
 
   useEffect(() => {
     if (!inquilinoId) {
@@ -216,6 +219,63 @@ export function InquilinoDetailPage() {
     [associacoes]
   );
 
+  // Helpers para pré-preencher o formulário de contrato
+  const formatCpf = (raw?: string) => {
+    if (!raw) return '';
+    const d = raw.replace(/\D/g, '').slice(0, 11);
+    if (d.length !== 11) return raw;
+    return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+  };
+
+  const formatPhoneForm = (phone?: string) => {
+    if (!phone) return '';
+    const d = phone.replace(/\D/g, '').slice(0, 11);
+    if (d.length < 10) return phone;
+    const isCell = d.length === 11;
+    const middle = isCell ? `${d.slice(2,7)}` : `${d.slice(2,6)}`;
+    const end = isCell ? d.slice(7) : d.slice(6);
+    return `(${d.slice(0,2)}) ${middle}-${end}`;
+  };
+
+  const contratoDefaults: Partial<ContratoFormData> = useMemo(() => {
+    if (!inquilino) return {};
+    const ativa = activeAssociacoes[0];
+
+    const hojeISO = new Date().toISOString().split('T')[0];
+    const valorReferencia = ativa?.valor_aluguel ? Number(ativa.valor_aluguel) : 1000;
+    const clausulaSugestao = ativa
+      ? `O aluguel convencionado é referente ao apartamento ${ativa.apartamento_numero} no edifício ${ativa.edificio_nome}, no valor mensal de R$ ${valorReferencia.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}, com vencimento no dia 05 de cada mês.`
+      : `O aluguel convencionado é de R$ ${valorReferencia.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} mensais, com pagamento até o dia 05 de cada mês.`;
+
+    // Nome completo do locatário com fallback robusto
+    const nomeLocatario =
+      (inquilino.tipo === 'PF' ? inquilino.nome_completo : (inquilino.razao_social || inquilino.nome_fantasia))
+      || (inquilino as any).nome_exibicao
+      || inquilino.identificacao_formatada
+      || '';
+
+    return {
+      locatario: {
+        nomeCompleto: nomeLocatario,
+        nacionalidade: 'Brasileira',
+        profissao: inquilino.profissao || 'Profissão não informada',
+        cpf: inquilino.cpf_formatado || formatCpf(inquilino.cpf || inquilino.identificacao || ''),
+        rg: inquilino.rg || '0000000',
+        rgOrgao: inquilino.tipo === 'PF' ? 'SSP/SC' : 'N/A',
+        enderecoCompleto: inquilino.endereco_completo || 'Endereço informado na ficha cadastral.',
+        telefone: formatPhoneForm(inquilino.telefone || '4800000000'),
+        email: inquilino.email || '',
+      },
+      contrato: {
+        dataInicio: ativa?.data_inicio || hojeISO,
+        valorCaucao: valorReferencia,
+        clausulaSegunda: clausulaSugestao,
+      },
+      inventarioMoveis: 'Armário de cozinha, mesa com cadeiras, sofá, geladeira e fogão em bom estado de conservação.',
+    } as Partial<ContratoFormData>;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inquilino, activeAssociacoes]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -270,6 +330,7 @@ export function InquilinoDetailPage() {
           </div>
 
           <div className="flex space-x-3">
+            <GerarContratoButton onOpenModal={() => setShowContratoModal(true)} />
             <button
               onClick={() => navigate(`/inquilinos/${inquilino.id}/associacoes`)}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -532,6 +593,12 @@ export function InquilinoDetailPage() {
           </section>
         </div>
       </div>
+      {/* Modal para gerar contrato com dados do inquilino/associação */}
+      <GerarContratoModal
+        isOpen={showContratoModal}
+        onClose={() => setShowContratoModal(false)}
+        defaultValues={contratoDefaults}
+      />
     </div>
   );
 }

@@ -92,118 +92,104 @@ export const getInquilinoSchema = () => {
       .test('phone-valid', 'Telefone inválido', validatePhone)
       .required('Telefone é obrigatório'),
 
-    observacoes: yup.string().optional(),
+    observacoes: yup.string().notRequired().nullable(),
 
     // Campos específicos para Pessoa Física
     nome_completo: yup
       .string()
-      .when('tipo', {
-        is: 'PF',
-        then: (schema) => schema
-          .min(2, 'Nome deve ter pelo menos 2 caracteres')
-          .required('Nome completo é obrigatório para Pessoa Física'),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PF'
+          ? schema
+              .min(2, 'Nome deve ter pelo menos 2 caracteres')
+              .required('Nome completo é obrigatório para Pessoa Física')
+          : schema.notRequired().nullable();
       }),
 
     cpf: yup
       .string()
-      .when('tipo', {
-        is: 'PF',
-        then: (schema) => schema
-          .test('cpf-valid', 'CPF inválido', validateCPF)
-          .required('CPF é obrigatório para Pessoa Física'),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PF'
+          ? schema
+              .test('cpf-valid', 'CPF inválido', validateCPF)
+              .required('CPF é obrigatório para Pessoa Física')
+          : schema.notRequired().nullable();
       }),
 
     rg: yup
       .string()
-      .when('tipo', {
-        is: 'PF',
-        then: (schema) => schema.optional(),
-        otherwise: (schema) => schema.optional(),
-      }),
+      .notRequired().nullable(),
 
     data_nascimento: yup
       .string()
-      .when('tipo', {
-        is: 'PF',
-        then: (schema) => schema
-          .test('age-valid', 'Inquilino deve ser maior de idade', validateAge)
-          .optional(),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PF'
+          ? schema
+              .test('age-valid', 'Inquilino deve ser maior de idade', validateAge)
+              .notRequired().nullable()
+          : schema.notRequired().nullable();
       }),
 
     estado_civil: yup
       .string()
-      .when('tipo', {
-        is: 'PF',
-        then: (schema) => schema
-          .oneOf(['SOLTEIRO', 'CASADO', 'DIVORCIADO', 'VIUVO', ''], 'Estado civil inválido')
-          .optional(),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PF'
+          ? schema
+              .oneOf(['SOLTEIRO', 'CASADO', 'DIVORCIADO', 'VIUVO', ''], 'Estado civil inválido')
+              .notRequired().nullable()
+          : schema.notRequired().nullable();
       }),
 
     profissao: yup
       .string()
-      .when('tipo', {
-        is: 'PF',
-        then: (schema) => schema.optional(),
-        otherwise: (schema) => schema.optional(),
-      }),
+      .notRequired().nullable(),
 
     renda: yup
       .number()
-      .when('tipo', {
-        is: 'PF',
-        then: (schema) => schema
-          .min(0, 'Renda não pode ser negativa')
-          .optional(),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PF'
+          ? schema
+              .min(0, 'Renda não pode ser negativa')
+              .notRequired().nullable()
+          : schema.notRequired().nullable();
       }),
 
     // Campos específicos para Pessoa Jurídica
     razao_social: yup
       .string()
-      .when('tipo', {
-        is: 'PJ',
-        then: (schema) => schema
-          .min(2, 'Razão social deve ter pelo menos 2 caracteres')
-          .required('Razão social é obrigatória para Pessoa Jurídica'),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PJ'
+          ? schema
+              .min(2, 'Razão social deve ter pelo menos 2 caracteres')
+              .required('Razão social é obrigatória para Pessoa Jurídica')
+          : schema.notRequired().nullable();
       }),
 
     nome_fantasia: yup
       .string()
-      .when('tipo', {
-        is: 'PJ',
-        then: (schema) => schema.optional(),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PJ' ? schema.notRequired().nullable() : schema.notRequired().nullable();
       }),
 
     cnpj: yup
       .string()
-      .when('tipo', {
-        is: 'PJ',
-        then: (schema) => schema
-          .test('cnpj-valid', 'CNPJ inválido', validateCNPJ)
-          .required('CNPJ é obrigatório para Pessoa Jurídica'),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PJ'
+          ? schema
+              .test('cnpj-valid', 'CNPJ inválido', validateCNPJ)
+              .required('CNPJ é obrigatório para Pessoa Jurídica')
+          : schema.notRequired().nullable();
       }),
 
     inscricao_estadual: yup
       .string()
-      .when('tipo', {
-        is: 'PJ',
-        then: (schema) => schema.optional(),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PJ' ? schema.notRequired().nullable() : schema.notRequired().nullable();
       }),
 
     responsavel_legal: yup
       .string()
-      .when('tipo', {
-        is: 'PJ',
-        then: (schema) => schema.optional(),
-        otherwise: (schema) => schema.optional(),
+      .when('tipo', ([tipo], schema) => {
+        return tipo === 'PJ' ? schema.notRequired().nullable() : schema.notRequired().nullable();
       }),
 
     // Campo opcional comum

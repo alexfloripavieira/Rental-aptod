@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { InquilinoProvider } from '../../contexts/InquilinoContext';
 import { InquilinoList } from '../../components/inquilinos/InquilinoList';
 import { InquilinoFilters } from '../../components/inquilinos/InquilinoFilters';
+// Removido o botão/modal de contrato desta página (passou para a página de detalhes)
 import { useInquilinos } from '../../hooks/useInquilinos';
 import type { InquilinoSearchParams } from '../../types/inquilino';
 
@@ -28,6 +29,8 @@ function InquilinosListPageContent() {
     page: 1,
     page_size: 12,
   });
+
+  // const [modalOpen, setModalOpen] = useState(false); // movido para a página de detalhes
 
   useEffect(() => {
     loadInquilinos(filters);
@@ -193,6 +196,8 @@ function InquilinosListPageContent() {
         onRetry={handleRetry}
         onEdit={(inquilino) => handleEdit(inquilino.id)}
       />
+
+      {/* Modal de Geração de Contrato removido daqui */}
     </div>
   );
 }

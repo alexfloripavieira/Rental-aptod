@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
+import { inquilinoService } from '../services/inquilinoService';
 import type { Inquilino } from '../types/inquilino';
 
 export function useInquilinoDetails(inquilinoId: number) {
@@ -14,10 +14,10 @@ export function useInquilinoDetails(inquilinoId: number) {
     setError(null);
 
     try {
-      const response = await api.get(`/inquilinos/${inquilinoId}/`);
-      setInquilino(response.data);
+      const data = await inquilinoService.getById(inquilinoId);
+      setInquilino(data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao carregar inquilino');
+      setError(err.message || 'Erro ao carregar inquilino');
       console.error('Erro ao carregar inquilino:', err);
     } finally {
       setLoading(false);

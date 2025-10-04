@@ -17,6 +17,7 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: app.conf.development
       DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "*"
       POSTGRES_DB: aptos_dev
       POSTGRES_USER: dev_user
       POSTGRES_PASSWORD: dev123
@@ -37,8 +38,10 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      REACT_APP_API_URL: http://localhost:8000/api/v1
-      VITE_API_BASE_URL: http://localhost:8000/api/v1
+      VITE_API_BASE_URL: /api/v1
+      VITE_BACKEND_PROXY_TARGET: http://backend:8000
+    networks:
+      - aptos-network
     ports:
       - "3000:3000"
     depends_on:

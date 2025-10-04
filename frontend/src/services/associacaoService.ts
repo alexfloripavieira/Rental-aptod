@@ -44,6 +44,14 @@ class AssociacaoService {
     return response.data;
   }
 
+  async update(associacaoId: number, data: Partial<AssociacaoFormData>): Promise<AssociacaoDetail> {
+    const response = await apiClient['client'].patch<AssociacaoDetail>(
+      `${this.basePath}/${associacaoId}/`,
+      data
+    );
+    return response.data;
+  }
+
   async finalize(associacaoId: number, data: FinalizarAssociacaoInput = {}): Promise<{ success: boolean; message?: string }> {
     const payload: FinalizarAssociacaoInput = {};
     if (data.data_fim) {
