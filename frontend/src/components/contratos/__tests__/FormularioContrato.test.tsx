@@ -80,6 +80,6 @@ describe('FormularioContrato', () => {
 
     expect(screen.getByPlaceholderText('Nome completo do locador')).toBeInTheDocument();
     expect(screen.getAllByPlaceholderText('000.000.000-00')).toHaveLength(2);
-    expect(screen.getByPlaceholderText('(XX) XXXXX-XXXX')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('(00) 00000-0000')).toBeInTheDocument();
   });
 });
