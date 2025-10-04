@@ -49,7 +49,7 @@ cat > .env << 'EOF'
 DJANGO_SETTINGS_MODULE=app.conf.production
 SECRET_KEY=your-secret-key-here-change-me
 DEBUG=False
-ALLOWED_HOSTS=54-226-183-211,localhost,127.0.0.1
+ALLOWED_HOSTS=54.226.183.211,localhost,127.0.0.1
 
 # Database
 POSTGRES_DB=rental_aptod
@@ -59,7 +59,7 @@ POSTGRES_HOST=db
 POSTGRES_PORT=5432
 
 # CORS
-CORS_ALLOWED_ORIGINS=http://54-226-183-211,http://localhost
+CORS_ALLOWED_ORIGINS=http://54.226.183.211,http://localhost
 
 # Django Log Directory
 DJANGO_LOG_DIR=/app/logs
@@ -85,4 +85,4 @@ echo ""
 echo "5. Create Django superuser:"
 echo "   docker compose exec backend python manage.py createsuperuser"
 echo ""
-echo "6. Access your app at: http://54-226-183-211"
+echo "6. Access your app at: http://54.226.183.211"

@@ -35,6 +35,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/uploads"
           mkdir -p "$RUNNER_TEMP/media"
+          mkdir -p logs
       - name: Run Django tests with coverage
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_aptos
