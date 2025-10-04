@@ -73,7 +73,7 @@ describe('useGerarContrato', () => {
       '/api/v1/contratos/gerar/',
       expect.objectContaining({
         locador: expect.objectContaining({
-          nome_completo: 'João Silva',
+          nomeCompleto: 'João Silva',
         }),
       }),
       expect.objectContaining({
