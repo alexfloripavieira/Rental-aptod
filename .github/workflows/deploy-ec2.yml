@@ -1,12 +1,18 @@
-name: Deploy to EC2
+name: Deploy to EC2 (legacy, manual only)
 
 on:
-  push:
-    branches: [ main ]
+  # Desativado em pushes para evitar rodar junto com o Lightsail
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type YES to run the legacy EC2 deploy"
+        required: true
+        default: "NO"
 
 jobs:
   build-and-deploy:
+    # Só executa se o usuário disparar manualmente e confirmar com YES
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.confirm == 'YES' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
