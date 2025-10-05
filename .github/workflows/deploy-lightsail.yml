@@ -60,4 +60,10 @@ jobs:
             set -euo pipefail
             cd ~/Rental-aptod
             docker compose ps
-            docker compose exec -T backend curl -sS http://localhost:8000/api/v1/health/ || (echo "backend health failed" && exit 1)
+            echo "[health] Waiting backend to become healthy..."
+            for i in $(seq 1 40); do
+              if docker compose exec -T backend curl -fsS http://localhost:8000/api/v1/health/ >/dev/null 2>&1; then
+                echo "[health] Backend OK after $i checks"; exit 0; fi; sleep 3; done
+            echo "[health] Backend not healthy after timeout" >&2
+            docker compose logs --tail=200 backend || true
+            exit 1

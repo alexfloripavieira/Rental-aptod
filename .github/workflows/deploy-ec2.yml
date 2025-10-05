@@ -115,21 +115,14 @@ jobs:
             docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
 
             # Wait for services to be ready
-            echo "⏳ Waiting for services to start..."
-            sleep 30
-
-            # Check if containers are running
-            echo "🔍 Checking container status..."
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production ps
-
-            # Test if backend is responding
-            echo "🩺 Testing backend health..."
-            if curl -f http://localhost:8000/api/v1/health/ &>/dev/null; then
-              echo "✅ Backend is healthy"
-            else
-              echo "⚠️ Backend health check failed, checking logs..."
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production logs backend --tail 20
-            fi
+            echo "⏳ Waiting backend to become healthy..."
+            for i in $(seq 1 40); do
+              if docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T backend curl -fsS http://localhost:8000/api/v1/health/ >/dev/null 2>&1; then
+                echo "✅ Backend healthy after $i checks"; break; fi; sleep 3; done
+            echo "🔍 Container status:"; docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production ps
+            # If still not healthy, print logs and fail
+            if ! docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production exec -T backend curl -fsS http://localhost:8000/api/v1/health/ >/dev/null 2>&1; then
+              echo "❌ Backend not healthy. Tail logs:"; docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production logs --tail=200 backend || true; exit 1; fi
 
             echo "🔎 Validating served frontend assets..."
             # Extração robusta dos assets: agora os bundles ficam em /static/assets/js e /static/assets/css
