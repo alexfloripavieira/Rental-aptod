@@ -1,0 +1,64 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Basic sanity checks
+        run: |
+          python -V || true
+          node -v || true
+          echo "Repo checked out at: $(pwd)"
+
+      - name: Deploy over SSH to Lightsail
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER || 'ubuntu' }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            export APP_DIR=~/Rental-aptod
+            if [ ! -d "$APP_DIR/.git" ]; then
+              git clone https://github.com/${{ github.repository }} "$APP_DIR"
+            fi
+            cd "$APP_DIR"
+            # Ensure correct branch
+            git fetch origin "${GITHUB_REF_NAME:-main}" || true
+            git checkout "${GITHUB_REF_NAME:-main}" || git checkout main
+            git pull --rebase --autostash || true
+
+            # Create .env if not present (kept on server); no-op if exists
+            if [ ! -f .env ]; then
+              echo "[warn] .env not found on server; create it before first deploy." >&2
+            fi
+
+            # Build and run with production profile
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production up -d --build
+
+            # Optional cleanup of dangling images
+            docker image prune -f || true
+
+      - name: Post-deploy health check
+        if: always()
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER || 'ubuntu' }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd ~/Rental-aptod
+            docker compose ps
+            docker compose exec -T backend curl -sS http://localhost:8000/api/v1/health/ || (echo "backend health failed" && exit 1)
+

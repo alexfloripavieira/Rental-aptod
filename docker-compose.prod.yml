@@ -16,7 +16,7 @@ services:
       - DJANGO_SETTINGS_MODULE=app.conf.production
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       - DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS}
-      - DJANGO_CSRF_TRUSTED_ORIGINS=https://seualuguelfacil.com.br,https://www.seualuguelfacil.com.br,http://54.226.183.211,http://localhost
+      - DJANGO_CSRF_TRUSTED_ORIGINS=https://seualuguelfacil.com.br,https://www.seualuguelfacil.com.br,http://54.173.117.203,http://localhost
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -34,7 +34,9 @@ services:
     volumes:
       - media_prod_volume:/media:ro
       - static_prod_volume:/static:ro
+      # Mount certs volume in both locations to satisfy nginx image entrypoint
       - ssl_certs_volume:/etc/nginx/ssl:ro
+      - ssl_certs_volume:/etc/nginx/certs:ro
       - certbot_webroot:/var/www/certbot:ro
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 

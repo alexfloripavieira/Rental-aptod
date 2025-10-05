@@ -1,7 +1,7 @@
 # 🔄 EC2 Recovery Guide - Rental Aptod
 
 ## Situação
-Instância EC2 foi encerrada (terminated). Elastic IP `54.226.183.211` foi preservado.
+Instância EC2 foi encerrada (terminated). Elastic IP `54.173.117.203` foi preservado.
 
 ## 📋 Passo a Passo para Recuperação
 
@@ -35,7 +35,7 @@ Instância EC2 foi encerrada (terminated). Elastic IP `54.226.183.211` foi prese
 ### 2️⃣ Associar Elastic IP
 
 1. **EC2 Dashboard** → **Elastic IPs** (menu lateral)
-2. Selecione o IP `54.226.183.211`
+2. Selecione o IP `54.173.117.203`
 3. **Actions** → **Associate Elastic IP address**
 4. **Instance**: selecione a nova instância
 5. **Associate**
@@ -59,7 +59,7 @@ Se o GitHub Actions ainda falhar, adicione IPs do GitHub:
 chmod 400 sua-chave.pem
 
 # Conectar
-ssh -i sua-chave.pem ubuntu@54.226.183.211
+ssh -i sua-chave.pem ubuntu@54.173.117.203
 ```
 
 ### 5️⃣ Executar Setup Automático
@@ -77,7 +77,7 @@ Ou copie o script manualmente:
 
 ```bash
 # No seu computador local
-scp -i sua-chave.pem scripts/ec2-setup.sh ubuntu@54.226.183.211:~/
+scp -i sua-chave.pem scripts/ec2-setup.sh ubuntu@54.173.117.203:~/
 
 # No servidor EC2
 chmod +x ~/ec2-setup.sh
@@ -130,7 +130,7 @@ docker compose exec backend python manage.py createsuperuser
 curl http://localhost:8000/api/v1/health/
 
 # Ou acesse no navegador:
-# http://54.226.183.211
+# http://54.173.117.203
 ```
 
 ### 🔟 Atualizar GitHub Secrets
@@ -140,7 +140,7 @@ curl http://localhost:8000/api/v1/health/
 1. Vá em **Settings** → **Secrets and variables** → **Actions**
 
 2. Atualize (se necessário):
-   - `EC2_HOST` = `54.226.183.211`
+   - `EC2_HOST` = `54.173.117.203`
    - `EC2_USER` = `ubuntu`
    - `EC2_SSH_KEY` = conteúdo completo do arquivo `.pem`
 
@@ -164,7 +164,7 @@ curl https://api.github.com/meta | jq -r '.actions[]'
 **Solução 2 - Testar conexão SSH:**
 ```bash
 # Do GitHub Actions runner
-ssh -v -i key.pem ubuntu@54.226.183.211
+ssh -v -i key.pem ubuntu@54.173.117.203
 ```
 
 ### Problema: Docker não inicia containers
@@ -195,7 +195,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile produc
 ## 📝 Checklist Final
 
 - [ ] Instância EC2 criada e running
-- [ ] Elastic IP `54.226.183.211` associado
+- [ ] Elastic IP `54.173.117.203` associado
 - [ ] Security Group permite SSH (porta 22)
 - [ ] Docker e Docker Compose instalados
 - [ ] Repositório clonado em `~/Rental-aptod`
@@ -203,7 +203,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile produc
 - [ ] Aplicação rodando: `docker compose ps` mostra todos "Up"
 - [ ] Health check OK: `curl http://localhost:8000/api/v1/health/`
 - [ ] Superusuário Django criado
-- [ ] Frontend acessível em `http://54.226.183.211`
+- [ ] Frontend acessível em `http://54.173.117.203`
 - [ ] GitHub Secrets atualizados
 - [ ] Deploy via GitHub Actions funcionando
 
@@ -238,5 +238,5 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile produc
 docker compose exec db pg_dump -U postgres rental_aptod > backup-$(date +%Y%m%d).sql
 
 # Baixar para local
-scp -i sua-chave.pem ubuntu@54.226.183.211:~/backup-*.sql ./backups/
+scp -i sua-chave.pem ubuntu@54.173.117.203:~/backup-*.sql ./backups/
 ```

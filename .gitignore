@@ -53,3 +53,4 @@ rental-apto.pem
 **/__pycache__/
 *.pyc
 .pytest_coverage.xml
+LightsailDefaultKey-us-east-1.pem
