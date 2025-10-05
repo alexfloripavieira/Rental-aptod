@@ -18,12 +18,12 @@ jobs:
           node -v || true
           echo "Repo checked out at: $(pwd)"
 
-      - name: Deploy over SSH to Lightsail
+      - name: Deploy over SSH (reuse EC2_* secrets)
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.LIGHTSAIL_HOST }}
-          username: ${{ secrets.LIGHTSAIL_USER || 'ubuntu' }}
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script_stop: true
           script: |
             set -euo pipefail
@@ -48,17 +48,16 @@ jobs:
             # Optional cleanup of dangling images
             docker image prune -f || true
 
-      - name: Post-deploy health check
+      - name: Post-deploy health check (reuse EC2_* secrets)
         if: always()
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.LIGHTSAIL_HOST }}
-          username: ${{ secrets.LIGHTSAIL_USER || 'ubuntu' }}
-          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script_stop: true
           script: |
             set -euo pipefail
             cd ~/Rental-aptod
             docker compose ps
             docker compose exec -T backend curl -sS http://localhost:8000/api/v1/health/ || (echo "backend health failed" && exit 1)
-
